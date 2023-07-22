@@ -4,8 +4,6 @@ import com.mcal.apkparser.io.ZInput;
 import com.mcal.apkparser.io.ZOutput;
 import com.mcal.apkparser.util.StringDecoder;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
