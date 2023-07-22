@@ -9,9 +9,10 @@ afterEvaluate {
     publishing {
         publications {
             release(MavenPublication) {
+                from components.java
                 groupId = 'com.mcal'
                 artifactId = 'apkparser'
-                version = "1.1"
+                version = "1.2"
             }
         }
     }
