@@ -1,5 +1,6 @@
 apply plugin: 'java-library'
 apply plugin: 'maven-publish'
+apply plugin: 'kotlin'
 
 dependencies {
 //    implementation("org.jetbrains:annotations:24.0.1")
@@ -12,7 +13,7 @@ afterEvaluate {
                 from components.java
                 groupId = 'com.mcal'
                 artifactId = 'apkparser'
-                version = "1.2"
+                version = "1.3"
             }
         }
     }
