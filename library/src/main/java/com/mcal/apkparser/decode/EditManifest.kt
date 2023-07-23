@@ -99,11 +99,11 @@ class EditManifest(
             while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
                 if (type != XmlPullParser.START_TAG) continue
                 if (parser.name == name) {
-                    var customApplication = false
+                    var isFoundAttribute = false
                     val size = parser.attributeCount
                     for (i in 0 until size) {
                         if (parser.getAttributeName(i) == attributeName) {
-                            customApplication = true
+                            isFoundAttribute = true
                             val index = aXml.mTableStrings.size
                             val data = aXml.data
                             var off = parser.currentAttributeStart + 20 * i
@@ -113,7 +113,7 @@ class EditManifest(
                             FileHelper.writeInt(data, off, index)
                         }
                     }
-                    if (!customApplication) {
+                    if (!isFoundAttribute) {
                         var off = parser.currentAttributeStart
                         val data = aXml.data
                         val newData = ByteArray(data.size + 20)
@@ -189,11 +189,11 @@ class EditManifest(
                     continue
                 }
                 if (parser.name == name) {
-                    var customApplication = false
+                    var isFoundAttribute = false
                     val size = parser.attributeCount
                     for (i in 0 until size) {
                         if (parser.getAttributeNameResource(i) == attributeNameResource) {
-                            customApplication = true
+                            isFoundAttribute = true
                             val index = aXml.mTableStrings.size
                             val data = aXml.data
                             var off = parser.currentAttributeStart + 20 * i
@@ -203,7 +203,7 @@ class EditManifest(
                             FileHelper.writeInt(data, off, index)
                         }
                     }
-                    if (!customApplication) {
+                    if (!isFoundAttribute) {
                         var off = parser.currentAttributeStart
                         val data = aXml.data
                         val newData = ByteArray(data.size + 20)
