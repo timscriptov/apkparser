@@ -1,7 +1,7 @@
 /* -*-             c-basic-offset: 4; indent-tabs-mode: nil; -*-  //------100-columns-wide------>|*/
 // for license please see accompanying LICENSE.txt file (available also at http://www.xmlpull.org/)
 
-package com.mcal.apkparser.decode;
+package com.mcal.apkparser.xml;
 
 public interface XmlPullParser {
 

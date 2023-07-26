@@ -1,21 +1,33 @@
-package com.mcal.apkparser.decode
+package com.mcal.apkparser.xml
 
 import java.io.ByteArrayInputStream
 import java.io.File
 import java.io.FileInputStream
+import java.io.InputStream
 
-class ReadManifest(
-    private val manifest: File
-) {
-    private lateinit var aXml: AXmlDecoder
-    private lateinit var parser: AXmlResourceParser
+class ReadManifest {
+    private val manifest: InputStream
 
-    init {
+    constructor(manifest: File) {
+        this.manifest = FileInputStream(manifest)
         parse()
     }
 
+    constructor(manifest: FileInputStream) {
+        this.manifest = manifest
+        parse()
+    }
+
+    constructor(manifest: ByteArray) {
+        this.manifest = ByteArrayInputStream(manifest)
+        parse()
+    }
+
+    private lateinit var aXml: AXmlDecoder
+    private lateinit var parser: AXmlResourceParser
+
     private fun parse() {
-        aXml = AXmlDecoder.decode(FileInputStream(manifest))
+        aXml = AXmlDecoder.decode(manifest)
         parser = AXmlResourceParser().apply {
             open(ByteArrayInputStream(aXml.data), aXml.mTableStrings)
         }

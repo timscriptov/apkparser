@@ -1,4 +1,4 @@
-package com.mcal.apkparser.decode;
+package com.mcal.apkparser.xml;
 
 import com.mcal.apkparser.io.ZInput;
 import com.mcal.apkparser.io.ZOutput;

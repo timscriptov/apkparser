@@ -1,4 +1,4 @@
-package com.mcal.apkparser.decode
+package com.mcal.apkparser.xml
 
 import com.mcal.apkparser.util.FileHelper
 import java.io.ByteArrayInputStream
