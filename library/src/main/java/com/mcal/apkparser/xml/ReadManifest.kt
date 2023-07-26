@@ -84,6 +84,12 @@ class ReadManifest {
     val compileSdkVersionCodename by lazy(LazyThreadSafetyMode.NONE) {
         findAttributeStringValue("manifest", COMPILE_SDK_VERSION_CODENAME)
     }
+    val minSdkVersion by lazy(LazyThreadSafetyMode.NONE) {
+        findAttributeStringValue("manifest", MIN_SDK_VERSION)
+    }
+    val targetSdkVersion by lazy(LazyThreadSafetyMode.NONE) {
+        findAttributeStringValue("manifest", TARGET_SDK_VERSION)
+    }
 
     fun findAttributeListValue(name: String, attributeNameResource: Int): List<String> {
         val list = arrayListOf<String>()
@@ -188,5 +194,7 @@ class ReadManifest {
         private const val USES_CLEARTEXT_TRAFFIC = 0x010104ec
         private const val REQUEST_LEGACY_EXTERNAL_STORAGE = 0x01010603
         private const val PRESERVE_LEGACY_EXTERNAL_STORAGE = 0x01010614
+        private const val MIN_SDK_VERSION = 0x0101020c
+        private const val TARGET_SDK_VERSION = 0x01010270
     }
 }

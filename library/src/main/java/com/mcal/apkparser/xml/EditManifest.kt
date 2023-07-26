@@ -92,6 +92,14 @@ class EditManifest(
         updateApplication(attributeValue, "application", COMPILE_SDK_VERSION_CODENAME)
     }
 
+    fun setMinSdkVersion(attributeValue: Int) {
+        updateApplication(attributeValue.toString(), "application", MIN_SDK_VERSION)
+    }
+
+    fun setTargetSdkVersionCodename(attributeValue: String) {
+        updateApplication(attributeValue, "application", TARGET_SDK_VERSION)
+    }
+
     private fun updateApplication(attributeValue: String, name: String, attributeName: String) {
         var success = false
         var type: Int
@@ -283,6 +291,8 @@ class EditManifest(
         private const val USES_CLEARTEXT_TRAFFIC = 0x010104ec
         private const val REQUEST_LEGACY_EXTERNAL_STORAGE = 0x01010603
         private const val PRESERVE_LEGACY_EXTERNAL_STORAGE = 0x01010614
+        private const val MIN_SDK_VERSION = 0x0101020c
+        private const val TARGET_SDK_VERSION = 0x01010270
 
         private const val TYPE_STRING = 0x03000008
 
