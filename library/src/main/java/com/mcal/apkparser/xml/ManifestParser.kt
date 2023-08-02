@@ -7,7 +7,7 @@ import java.io.File
 import java.io.IOException
 import java.io.InputStream
 
-class EditManifest {
+class ManifestParser {
     private lateinit var aXml: AXmlDecoder
     private lateinit var parser: AXmlResourceParser
     private lateinit var byteArray: ByteArray
@@ -40,77 +40,153 @@ class EditManifest {
         return byteArray
     }
 
-    fun setPackageName(attributeValue: String) {
-        patching(attributeValue, "application", "package")
-    }
+    var packageName: String? = null
+        get() = findAttributeStringValue("manifest", "package")
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "manifest", "package")
+            }
+            field = attributeValue
+        }
 
-    fun setApplicationName(attributeValue: String) {
-        patching(attributeValue, "application", NAME)
-    }
+    var applicationName: String? = null
+        get() = findAttributeStringValue("application", NAME)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "application", NAME)
+            }
+            field = attributeValue
+        }
 
-    fun setAppComponentFactoryName(attributeValue: String) {
-        patching(attributeValue, "application", APP_COMPONENT_FACTORY)
-    }
+    var appComponentFactoryName: String? = null
+        get() = findAttributeStringValue("application", APP_COMPONENT_FACTORY)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "application", APP_COMPONENT_FACTORY)
+            }
+            field = attributeValue
+        }
 
-    fun setExtractNativeLibs(attributeValue: Boolean) {
-        patching(attributeValue.toString(), "application", EXTRACT_NATIVE_LIBS)
-    }
+    var versionCode: String? = null
+        get() = findAttributeStringValue("manifest", VERSION_CODE)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "manifest", VERSION_CODE)
+            }
+            field = attributeValue
+        }
 
-    fun setAllowBackup(attributeValue: Boolean) {
-        patching(attributeValue.toString(), "application", ALLOW_BACKUP)
-    }
+    var versionName: String? = null
+        get() = findAttributeStringValue("manifest", VERSION_NAME)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "manifest", VERSION_NAME)
+            }
+            field = attributeValue
+        }
 
-    fun setLargeHeap(attributeValue: Boolean) {
-        patching(attributeValue.toString(), "application", LARGE_HEAP)
-    }
+    var compileSdkVersion: String? = null
+        get() = findAttributeStringValue("manifest", COMPILE_SDK_VERSION)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "manifest", COMPILE_SDK_VERSION)
+            }
+            field = attributeValue
+        }
 
-    fun setSupportsRtl(attributeValue: Boolean) {
-        patching(attributeValue.toString(), "application", SUPPORTS_RTL)
-    }
+    var compileSdkVersionCodename: String? = null
+        get() = findAttributeStringValue("manifest", COMPILE_SDK_VERSION_CODENAME)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "manifest", COMPILE_SDK_VERSION_CODENAME)
+            }
+            field = attributeValue
+        }
 
-    fun setUsesCleartextTraffic(attributeValue: Boolean) {
-        patching(attributeValue.toString(), "application", USES_CLEARTEXT_TRAFFIC)
-    }
+    var minSdkVersion: String? = null
+        get() = findAttributeStringValue("manifest", MIN_SDK_VERSION)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "manifest", MIN_SDK_VERSION)
+            }
+            field = attributeValue
+        }
 
-    fun setRequestLegacyExternalStorage(attributeValue: Boolean) {
-        patching(
-            attributeValue.toString(),
-            "application",
-            REQUEST_LEGACY_EXTERNAL_STORAGE
-        )
-    }
+    var targetSdkVersion: String? = null
+        get() = findAttributeStringValue("manifest", TARGET_SDK_VERSION)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "manifest", TARGET_SDK_VERSION)
+            }
+            field = attributeValue
+        }
 
-    fun setPreserveLegacyExternalStorage(attributeValue: Boolean) {
-        patching(
-            attributeValue.toString(),
-            "application",
-            PRESERVE_LEGACY_EXTERNAL_STORAGE
-        )
-    }
+    var extractNativeLibs: Boolean? = false
+        get() = findAttributeBooleanValue("application", EXTRACT_NATIVE_LIBS)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue.toString(), "application", EXTRACT_NATIVE_LIBS)
+            }
+            field = attributeValue
+        }
 
-    fun setVersionCode(attributeValue: Int) {
-        patching(attributeValue.toString(), "application", VERSION_CODE)
-    }
+    var allowBackup: Boolean? = false
+        get() = findAttributeBooleanValue("application", ALLOW_BACKUP)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue.toString(), "application", ALLOW_BACKUP)
+            }
+            field = attributeValue
+        }
 
-    fun setVersionName(attributeValue: Int) {
-        patching(attributeValue.toString(), "application", VERSION_NAME)
-    }
+    var largeHeap: Boolean? = false
+        get() = findAttributeBooleanValue("application", LARGE_HEAP)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue.toString(), "application", LARGE_HEAP)
+            }
+            field = attributeValue
+        }
 
-    fun setCompileSdkVersion(attributeValue: Int) {
-        patching(attributeValue.toString(), "application", COMPILE_SDK_VERSION)
-    }
+    var supportsRtl: Boolean? = false
+        get() = findAttributeBooleanValue("application", SUPPORTS_RTL)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue.toString(), "application", SUPPORTS_RTL)
+            }
+            field = attributeValue
+        }
 
-    fun setCompileSdkVersionCodename(attributeValue: String) {
-        patching(attributeValue, "application", COMPILE_SDK_VERSION_CODENAME)
-    }
+    var usesCleartextTraffic: Boolean? = false
+        get() = findAttributeBooleanValue("application", USES_CLEARTEXT_TRAFFIC)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue.toString(), "application", USES_CLEARTEXT_TRAFFIC)
+            }
+            field = attributeValue
+        }
 
-    fun setMinSdkVersion(attributeValue: Int) {
-        patching(attributeValue.toString(), "application", MIN_SDK_VERSION)
-    }
+    var requestLegacyExternalStorage: Boolean? = false
+        get() = findAttributeBooleanValue("application", REQUEST_LEGACY_EXTERNAL_STORAGE)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue.toString(), "application", REQUEST_LEGACY_EXTERNAL_STORAGE)
+            }
+            field = attributeValue
+        }
 
-    fun setTargetSdkVersionCodename(attributeValue: String) {
-        patching(attributeValue, "application", TARGET_SDK_VERSION)
-    }
+    var preserveLegacyExternalStorage: Boolean? = false
+        get() = findAttributeBooleanValue("application", PRESERVE_LEGACY_EXTERNAL_STORAGE)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue.toString(), "application", PRESERVE_LEGACY_EXTERNAL_STORAGE)
+            }
+            field = attributeValue
+        }
+
+    val allServiceName = findAttributeListValue("service", NAME)
+    val allReceiverName = findAttributeListValue("receiver", NAME)
+    val allActivityName = findAttributeListValue("activity", NAME)
 
     private fun patching(attributeValue: String, name: String, attributeName: String) {
         var success = false
@@ -283,6 +359,91 @@ class EditManifest {
         } catch (e: IOException) {
             e.printStackTrace()
         }
+    }
+
+    private fun findAttributeStringValue(name: String, attributeName: String): String? {
+        try {
+            var type: Int
+            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                if (type != XmlPullParser.START_TAG) {
+                    continue
+                }
+                if (parser.name == name) {
+                    for (i in 0 until parser.attributeCount) {
+                        if (parser.getAttributeName(i) == attributeName) {
+                            return parser.getAttributeValue(i)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
+    }
+
+    private fun findAttributeListValue(name: String, attributeNameResource: Int): List<String> {
+        val list = arrayListOf<String>()
+        try {
+            var type: Int
+            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                if (type != XmlPullParser.START_TAG) {
+                    continue
+                }
+                if (parser.name == name) {
+                    for (i in 0 until parser.attributeCount) {
+                        if (parser.getAttributeNameResource(i) == attributeNameResource) {
+                            list.add(parser.getAttributeValue(i))
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return list
+    }
+
+    private fun findAttributeBooleanValue(name: String, attributeNameResource: Int): Boolean {
+        try {
+            var type: Int
+            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                if (type != XmlPullParser.START_TAG) {
+                    continue
+                }
+                if (parser.name == name) {
+                    for (i in 0 until parser.attributeCount) {
+                        if (parser.getAttributeNameResource(i) == attributeNameResource) {
+                            return parser.getAttributeBooleanValue(i, false)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return false
+    }
+
+    private fun findAttributeStringValue(name: String, attributeNameResource: Int): String? {
+        try {
+            var type: Int
+            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                if (type != XmlPullParser.START_TAG) {
+                    continue
+                }
+                if (parser.name == name) {
+                    for (i in 0 until parser.attributeCount) {
+                        if (parser.getAttributeNameResource(i) == attributeNameResource) {
+                            return parser.getAttributeValue(i)
+                        }
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return null
     }
 
     companion object {

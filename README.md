@@ -19,22 +19,22 @@
 
 ## Read AndroidManifest.xml
 ```kotlin
-    val manifestData = ReadManifest(File("path"))
+    val manifestData = ManifestParser(File("path"))
     val name = manifestData.applicationName
 ```
 
 ```java
-    final ReadManifest manifestData = new ReadManifest(new File("path"));
-    final String name = manifestData.applicationName;
+    final ManifestParser manifestData = new ManifestParser(new File("path"));
+    final String name = manifestData.getApplicationName();
 ```
 
 ## Update AndroidManifest.xml
 ```kotlin
-    val editor = EditManifest(File("path"))
-    editor.setApplicationName("com.mypackage.MyApp")
+    val editor = ManifestParser(File("path"))
+    editor.applicationName = "com.mypackage.MyApp"
 ```
 
 ```java
-    final EditManifest editor = new EditManifest(new File("path"));
+    final ManifestParser editor = new ManifestParser(new File("path"));
     editor.setApplicationName("com.mypackage.MyApp");
 ```
