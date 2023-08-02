@@ -4,64 +4,76 @@ import com.mcal.apkparser.util.FileHelper
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileInputStream
 import java.io.IOException
+import java.io.InputStream
 
-class EditManifest(
-    private val manifest: File
-) : UpdateManifestListener {
+class EditManifest {
     private lateinit var aXml: AXmlDecoder
     private lateinit var parser: AXmlResourceParser
+    private lateinit var byteArray: ByteArray
 
-    init {
-        parse()
+    constructor(path: String) {
+        parse(File(path).readBytes())
     }
 
-    private fun parse() {
-        aXml = AXmlDecoder.decode(FileInputStream(manifest))
+    constructor(file: File) {
+        parse(file.readBytes())
+    }
+
+    constructor(byteArray: ByteArray) {
+        parse(byteArray)
+    }
+
+    constructor(manifestStream: InputStream) {
+        parse(manifestStream.readBytes())
+    }
+
+    private fun parse(byteArray: ByteArray) {
+        this.byteArray = byteArray
+        aXml = AXmlDecoder.decode(byteArray.inputStream())
         parser = AXmlResourceParser().apply {
             open(ByteArrayInputStream(aXml.data), aXml.mTableStrings)
         }
     }
 
-    override fun update() {
-        parse()
+    fun get(): ByteArray {
+        return byteArray
     }
 
     fun setPackageName(attributeValue: String) {
-        updateApplication(attributeValue, "application", "package")
+        patching(attributeValue, "application", "package")
     }
 
     fun setApplicationName(attributeValue: String) {
-        updateApplication(attributeValue, "application", NAME)
+        patching(attributeValue, "application", NAME)
     }
 
     fun setAppComponentFactoryName(attributeValue: String) {
-        updateApplication(attributeValue, "application", APP_COMPONENT_FACTORY)
+        patching(attributeValue, "application", APP_COMPONENT_FACTORY)
     }
 
     fun setExtractNativeLibs(attributeValue: Boolean) {
-        updateApplication(attributeValue.toString(), "application", EXTRACT_NATIVE_LIBS)
+        patching(attributeValue.toString(), "application", EXTRACT_NATIVE_LIBS)
     }
 
     fun setAllowBackup(attributeValue: Boolean) {
-        updateApplication(attributeValue.toString(), "application", ALLOW_BACKUP)
+        patching(attributeValue.toString(), "application", ALLOW_BACKUP)
     }
 
     fun setLargeHeap(attributeValue: Boolean) {
-        updateApplication(attributeValue.toString(), "application", LARGE_HEAP)
+        patching(attributeValue.toString(), "application", LARGE_HEAP)
     }
 
     fun setSupportsRtl(attributeValue: Boolean) {
-        updateApplication(attributeValue.toString(), "application", SUPPORTS_RTL)
+        patching(attributeValue.toString(), "application", SUPPORTS_RTL)
     }
 
     fun setUsesCleartextTraffic(attributeValue: Boolean) {
-        updateApplication(attributeValue.toString(), "application", USES_CLEARTEXT_TRAFFIC)
+        patching(attributeValue.toString(), "application", USES_CLEARTEXT_TRAFFIC)
     }
 
     fun setRequestLegacyExternalStorage(attributeValue: Boolean) {
-        updateApplication(
+        patching(
             attributeValue.toString(),
             "application",
             REQUEST_LEGACY_EXTERNAL_STORAGE
@@ -69,7 +81,7 @@ class EditManifest(
     }
 
     fun setPreserveLegacyExternalStorage(attributeValue: Boolean) {
-        updateApplication(
+        patching(
             attributeValue.toString(),
             "application",
             PRESERVE_LEGACY_EXTERNAL_STORAGE
@@ -77,30 +89,30 @@ class EditManifest(
     }
 
     fun setVersionCode(attributeValue: Int) {
-        updateApplication(attributeValue.toString(), "application", VERSION_CODE)
+        patching(attributeValue.toString(), "application", VERSION_CODE)
     }
 
     fun setVersionName(attributeValue: Int) {
-        updateApplication(attributeValue.toString(), "application", VERSION_NAME)
+        patching(attributeValue.toString(), "application", VERSION_NAME)
     }
 
     fun setCompileSdkVersion(attributeValue: Int) {
-        updateApplication(attributeValue.toString(), "application", COMPILE_SDK_VERSION)
+        patching(attributeValue.toString(), "application", COMPILE_SDK_VERSION)
     }
 
     fun setCompileSdkVersionCodename(attributeValue: String) {
-        updateApplication(attributeValue, "application", COMPILE_SDK_VERSION_CODENAME)
+        patching(attributeValue, "application", COMPILE_SDK_VERSION_CODENAME)
     }
 
     fun setMinSdkVersion(attributeValue: Int) {
-        updateApplication(attributeValue.toString(), "application", MIN_SDK_VERSION)
+        patching(attributeValue.toString(), "application", MIN_SDK_VERSION)
     }
 
     fun setTargetSdkVersionCodename(attributeValue: String) {
-        updateApplication(attributeValue, "application", TARGET_SDK_VERSION)
+        patching(attributeValue, "application", TARGET_SDK_VERSION)
     }
 
-    private fun updateApplication(attributeValue: String, name: String, attributeName: String) {
+    private fun patching(attributeValue: String, name: String, attributeName: String) {
         var success = false
         var type: Int
         try {
@@ -178,13 +190,13 @@ class EditManifest(
             val byteArrayOutputStream = ByteArrayOutputStream()
             aXml.write(list, byteArrayOutputStream)
 
-            manifest.writeBytes(byteArrayOutputStream.toByteArray())
+            parse(byteArrayOutputStream.toByteArray())
         } catch (e: IOException) {
             e.printStackTrace()
         }
     }
 
-    private fun updateApplication(
+    private fun patching(
         attributeValue: String,
         name: String,
         attributeNameResource: Int
@@ -267,7 +279,7 @@ class EditManifest(
             list.add(attributeValue)
             val byteArrayOutputStream = ByteArrayOutputStream()
             aXml.write(list, byteArrayOutputStream)
-            manifest.writeBytes(byteArrayOutputStream.toByteArray())
+            parse(byteArrayOutputStream.toByteArray())
         } catch (e: IOException) {
             e.printStackTrace()
         }
