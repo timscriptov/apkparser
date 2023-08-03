@@ -260,7 +260,7 @@ class ManifestParser {
             if (!success) {
                 throw IOException()
             }
-            val list: ArrayList<String> = ArrayList(aXml.mTableStrings.size)
+            val list = ArrayList<String>(aXml.mTableStrings.size)
             aXml.mTableStrings.getStrings(list)
             list.add(attributeValue)
             val byteArrayOutputStream = ByteArrayOutputStream()

@@ -38,34 +38,28 @@ import java.io.Reader;
  *         * check all methods in closed state
  */
 public class AXmlResourceParser implements XmlPullParser {
-
-    private static final String
-            E_NOT_SUPPORTED = "Method is not supported.";
-    private static final int
-            ATTRIBUTE_IX_NAMESPACE_URI = 0,
-            ATTRIBUTE_IX_NAME = 1,
-            ATTRIBUTE_IX_VALUE_STRING = 2,
-            ATTRIBUTE_IX_VALUE_TYPE = 3,
-            ATTRIBUTE_IX_VALUE_DATA = 4,
-            ATTRIBUTE_LENGHT = 5;
-    private static final int
-            CHUNK_AXML_FILE = 0x00080003,
-            CHUNK_RESOURCEIDS = 0x00080180,
-            CHUNK_XML_FIRST = 0x00100100,
-            CHUNK_XML_START_NAMESPACE = 0x00100100,
-            CHUNK_XML_END_NAMESPACE = 0x00100101,
-            CHUNK_XML_START_TAG = 0x00100102,
-            CHUNK_XML_END_TAG = 0x00100103,
-            CHUNK_XML_TEXT = 0x00100104,
-            CHUNK_XML_LAST = 0x00100104;
+    private static final String E_NOT_SUPPORTED = "Method is not supported.";
+    private static final int ATTRIBUTE_IX_NAMESPACE_URI = 0;
+    private static final int ATTRIBUTE_IX_NAME = 1;
+    private static final int ATTRIBUTE_IX_VALUE_STRING = 2;
+    private static final int ATTRIBUTE_IX_VALUE_TYPE = 3;
+    private static final int ATTRIBUTE_IX_VALUE_DATA = 4;
+    private static final int ATTRIBUTE_LENGHT = 5;
+    private static final int CHUNK_AXML_FILE = 0x00080003;
+    private static final int CHUNK_RESOURCEIDS = 0x00080180;
+    private static final int CHUNK_XML_FIRST = 0x00100100;
+    private static final int CHUNK_XML_START_NAMESPACE = 0x00100100;
+    private static final int CHUNK_XML_END_NAMESPACE = 0x00100101;
+    private static final int CHUNK_XML_START_TAG = 0x00100102;
+    private static final int CHUNK_XML_END_TAG = 0x00100103;
+    private static final int CHUNK_XML_TEXT = 0x00100104;
+    private static final int CHUNK_XML_LAST = 0x00100104;
+    private final NamespaceStack m_namespaces = new NamespaceStack();
     public int currentAttributeStart;
-
-    /////////////////////////////////// iteration
     private ZInput m_reader;
     private boolean m_operational = false;
     private StringDecoder m_strings;
     private int[] m_resourceIDs;
-    private NamespaceStack m_namespaces = new NamespaceStack();
     private boolean m_decreaseDepth;
     private int m_event;
     private int m_lineNumber;
@@ -81,7 +75,7 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     private static void readCheckType(ZInput reader, int expectedType) throws IOException {
-        int type = reader.readInt();
+        final int type = reader.readInt();
         if (type != expectedType) {
             throw new IOException(
                     "Expected chunk of type 0x" + Integer.toHexString(expectedType) +
@@ -104,8 +98,6 @@ public class AXmlResourceParser implements XmlPullParser {
         m_operational = true;
     }
 
-    /////////////////////////////////// attributes
-
     public void close() {
         if (!m_operational) {
             return;
@@ -114,6 +106,7 @@ public class AXmlResourceParser implements XmlPullParser {
         try {
             m_reader.close();
         } catch (IOException e) {
+            e.printStackTrace();
         }
         m_reader = null;
         m_strings = null;
@@ -156,7 +149,7 @@ public class AXmlResourceParser implements XmlPullParser {
         }
         int eventType = next();
         if (eventType == TEXT) {
-            String result = getText();
+            final String result = getText();
             eventType = next();
             if (eventType != END_TAG) {
                 throw new IOException("Event TEXT must be immediately followed by END_TAG.");
@@ -204,13 +197,13 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public char[] getTextCharacters(int[] holderForStartAndLength) {
-        String text = getText();
+        final String text = getText();
         if (text == null) {
             return null;
         }
         holderForStartAndLength[0] = 0;
         holderForStartAndLength[1] = text.length();
-        char[] chars = new char[text.length()];
+        final char[] chars = new char[text.length()];
         text.getChars(0, text.length(), chars, 0);
         return chars;
     }
@@ -220,7 +213,7 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public String getPrefix() {
-        int prefix = m_namespaces.findPrefix(m_namespaceUri);
+        final int prefix = m_namespaces.findPrefix(m_namespaceUri);
         return m_strings.getString(prefix);
     }
 
@@ -233,12 +226,12 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public String getNamespacePrefix(int pos) throws IOException {
-        int prefix = m_namespaces.getPrefix(pos);
+        final int prefix = m_namespaces.getPrefix(pos);
         return m_strings.getString(prefix);
     }
 
     public String getNamespaceUri(int pos) throws IOException {
-        int uri = m_namespaces.getUri(pos);
+        final int uri = m_namespaces.getUri(pos);
         return m_strings.getString(uri);
     }
 
@@ -246,8 +239,8 @@ public class AXmlResourceParser implements XmlPullParser {
         if (m_classAttribute == -1) {
             return null;
         }
-        int offset = getAttributeOffset(m_classAttribute);
-        int value = m_attributes[offset + ATTRIBUTE_IX_VALUE_STRING];
+        final int offset = getAttributeOffset(m_classAttribute);
+        final int value = m_attributes[offset + ATTRIBUTE_IX_VALUE_STRING];
         return m_strings.getString(value);
     }
 
@@ -255,8 +248,8 @@ public class AXmlResourceParser implements XmlPullParser {
         if (m_idAttribute == -1) {
             return null;
         }
-        int offset = getAttributeOffset(m_idAttribute);
-        int value = m_attributes[offset + ATTRIBUTE_IX_VALUE_STRING];
+        final int offset = getAttributeOffset(m_idAttribute);
+        final int value = m_attributes[offset + ATTRIBUTE_IX_VALUE_STRING];
         return m_strings.getString(value);
     }
 
@@ -264,8 +257,8 @@ public class AXmlResourceParser implements XmlPullParser {
         if (m_idAttribute == -1) {
             return defaultValue;
         }
-        int offset = getAttributeOffset(m_idAttribute);
-        int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
+        final int offset = getAttributeOffset(m_idAttribute);
+        final int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
         if (valueType != TypedValue.TYPE_REFERENCE) {
             return defaultValue;
         }
@@ -276,7 +269,7 @@ public class AXmlResourceParser implements XmlPullParser {
         if (m_styleAttribute == -1) {
             return 0;
         }
-        int offset = getAttributeOffset(m_styleAttribute);
+        final int offset = getAttributeOffset(m_styleAttribute);
         return m_attributes[offset + ATTRIBUTE_IX_VALUE_DATA];
     }
 
@@ -288,8 +281,8 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public String getAttributeNamespace(int index) {
-        int offset = getAttributeOffset(index);
-        int namespace = m_attributes[offset + ATTRIBUTE_IX_NAMESPACE_URI];
+        final int offset = getAttributeOffset(index);
+        final int namespace = m_attributes[offset + ATTRIBUTE_IX_NAMESPACE_URI];
         if (namespace == -1) {
             return "";
         }
@@ -297,9 +290,9 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public String getAttributePrefix(int index) {
-        int offset = getAttributeOffset(index);
-        int uri = m_attributes[offset + ATTRIBUTE_IX_NAMESPACE_URI];
-        int prefix = m_namespaces.findPrefix(uri);
+        final int offset = getAttributeOffset(index);
+        final int uri = m_attributes[offset + ATTRIBUTE_IX_NAMESPACE_URI];
+        final int prefix = m_namespaces.findPrefix(uri);
         if (prefix == -1) {
             return "";
         }
@@ -307,8 +300,8 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public String getAttributeName(int index) {
-        int offset = getAttributeOffset(index);
-        int name = m_attributes[offset + ATTRIBUTE_IX_NAME];
+        final int offset = getAttributeOffset(index);
+        final int name = m_attributes[offset + ATTRIBUTE_IX_NAME];
         if (name == -1) {
             return "";
         }
@@ -320,8 +313,8 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public int getAttributeNameResource(int index) {
-        int offset = getAttributeOffset(index);
-        int name = m_attributes[offset + ATTRIBUTE_IX_NAME];
+        final int offset = getAttributeOffset(index);
+        final int name = m_attributes[offset + ATTRIBUTE_IX_NAME];
         if (m_resourceIDs == null ||
                 name < 0 || name >= m_resourceIDs.length) {
             return 0;
@@ -330,8 +323,9 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public int findResourceID(int id) {
-        if (m_resourceIDs == null)
+        if (m_resourceIDs == null) {
             return -1;
+        }
         for (int i = 0; i < m_resourceIDs.length; i++) {
             if (m_resourceIDs[i] == id)
                 return i;
@@ -340,11 +334,9 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public int getAttributeValueType(int index) {
-        int offset = getAttributeOffset(index);
+        final int offset = getAttributeOffset(index);
         return m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
     }
-
-    /////////////////////////////////// dummies
 
     public int getAttributeValueData(int index) {
         int offset = getAttributeOffset(index);
@@ -357,8 +349,8 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public String getAttributeValue(int index) {
-        int offset = getAttributeOffset(index);
-        int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
+        final int offset = getAttributeOffset(index);
+        final int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
         if (valueType == TypedValue.TYPE_STRING) {
             int valueString = m_attributes[offset + ATTRIBUTE_IX_VALUE_STRING];
             return m_strings.getString(valueString);
@@ -372,8 +364,8 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public float getAttributeFloatValue(int index, float defaultValue) {
-        int offset = getAttributeOffset(index);
-        int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
+        final int offset = getAttributeOffset(index);
+        final int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
         if (valueType == TypedValue.TYPE_FLOAT) {
             int valueData = m_attributes[offset + ATTRIBUTE_IX_VALUE_DATA];
             return Float.intBitsToFloat(valueData);
@@ -382,8 +374,8 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public int getAttributeIntValue(int index, int defaultValue) {
-        int offset = getAttributeOffset(index);
-        int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
+        final int offset = getAttributeOffset(index);
+        final int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
         if (valueType >= TypedValue.TYPE_FIRST_INT &&
                 valueType <= TypedValue.TYPE_LAST_INT) {
             return m_attributes[offset + ATTRIBUTE_IX_VALUE_DATA];
@@ -396,8 +388,8 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public int getAttributeResourceValue(int index, int defaultValue) {
-        int offset = getAttributeOffset(index);
-        int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
+        final int offset = getAttributeOffset(index);
+        final int valueType = m_attributes[offset + ATTRIBUTE_IX_VALUE_TYPE];
         if (valueType == TypedValue.TYPE_REFERENCE) {
             return m_attributes[offset + ATTRIBUTE_IX_VALUE_DATA];
         }
@@ -405,7 +397,7 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public String getAttributeValue(String namespace, String attribute) {
-        int index = findAttribute(namespace, attribute);
+        final int index = findAttribute(namespace, attribute);
         if (index == -1) {
             return null;
         }
@@ -413,7 +405,7 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public boolean getAttributeBooleanValue(String namespace, String attribute, boolean defaultValue) {
-        int index = findAttribute(namespace, attribute);
+        final int index = findAttribute(namespace, attribute);
         if (index == -1) {
             return defaultValue;
         }
@@ -421,7 +413,7 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public float getAttributeFloatValue(String namespace, String attribute, float defaultValue) {
-        int index = findAttribute(namespace, attribute);
+        final int index = findAttribute(namespace, attribute);
         if (index == -1) {
             return defaultValue;
         }
@@ -429,24 +421,20 @@ public class AXmlResourceParser implements XmlPullParser {
     }
 
     public int getAttributeIntValue(String namespace, String attribute, int defaultValue) {
-        int index = findAttribute(namespace, attribute);
+        final int index = findAttribute(namespace, attribute);
         if (index == -1) {
             return defaultValue;
         }
         return getAttributeIntValue(index, defaultValue);
     }
 
-    ///////////////////////////////////////////// implementation
-
     public int getAttributeUnsignedIntValue(String namespace, String attribute, int defaultValue) {
-        int index = findAttribute(namespace, attribute);
+        final int index = findAttribute(namespace, attribute);
         if (index == -1) {
             return defaultValue;
         }
         return getAttributeUnsignedIntValue(index, defaultValue);
     }
-
-    /////////////////////////////////// package-visible
 
 //	final void fetchAttributes(int[] styleableIDs,TypedArray result) {
 //		result.resetIndices();
@@ -483,14 +471,12 @@ public class AXmlResourceParser implements XmlPullParser {
 //	}
 
     public int getAttributeResourceValue(String namespace, String attribute, int defaultValue) {
-        int index = findAttribute(namespace, attribute);
+        final int index = findAttribute(namespace, attribute);
         if (index == -1) {
             return defaultValue;
         }
         return getAttributeResourceValue(index, defaultValue);
     }
-
-    ///////////////////////////////////
 
     public int getAttributeListValue(int index, String[] options, int defaultValue) {
         // TODO implement
@@ -513,8 +499,6 @@ public class AXmlResourceParser implements XmlPullParser {
     public void setInput(InputStream stream, String inputEncoding) throws IOException {
         throw new IOException(E_NOT_SUPPORTED);
     }
-
-    /////////////////////////////////// data
 
     /*
      * All values are essentially indices, e.g. m_name is
@@ -573,7 +557,7 @@ public class AXmlResourceParser implements XmlPullParser {
         if (m_event != START_TAG) {
             throw new IndexOutOfBoundsException("Current event is not START_TAG.");
         }
-        int offset = index * 5;
+        final int offset = index * 5;
         if (offset >= m_attributes.length) {
             throw new IndexOutOfBoundsException("Invalid attribute index (" + index + ").");
         }
@@ -584,13 +568,11 @@ public class AXmlResourceParser implements XmlPullParser {
         if (m_strings == null || attribute == null) {
             return -1;
         }
-        int name = m_strings.find(attribute);
+        final int name = m_strings.find(attribute);
         if (name == -1) {
             return -1;
         }
-        int uri = (namespace != null) ?
-                m_strings.find(namespace) :
-                -1;
+        final int uri = (namespace != null) ? m_strings.find(namespace) : -1;
         for (int o = 0; o != m_attributes.length; ++o) {
             if (name == m_attributes[o + ATTRIBUTE_IX_NAME] &&
                     (uri == -1 || uri == m_attributes[o + ATTRIBUTE_IX_NAMESPACE_URI])) {
@@ -628,7 +610,7 @@ public class AXmlResourceParser implements XmlPullParser {
             return;
         }
 
-        int event = m_event;
+        final int event = m_event;
 
         //初始化为-1
         resetEventInfo();
@@ -647,7 +629,7 @@ public class AXmlResourceParser implements XmlPullParser {
                 break;
             }
 
-            int chunkType;
+            final int chunkType;
             if (event == START_DOCUMENT) {
                 // Fake event, see CHUNK_XML_START_TAG handler.
                 chunkType = CHUNK_XML_START_TAG;
@@ -777,25 +759,25 @@ public class AXmlResourceParser implements XmlPullParser {
             m_data = new int[32];
         }
 
-        public final void reset() {
+        public void reset() {
             m_dataLength = 0;
             m_count = 0;
             m_depth = 0;
         }
 
-        public final int getTotalCount() {
+        public int getTotalCount() {
             return m_count;
         }
 
-        public final int getCurrentCount() {
+        public int getCurrentCount() {
             if (m_dataLength == 0) {
                 return 0;
             }
-            int offset = m_dataLength - 1;
+            final int offset = m_dataLength - 1;
             return m_data[offset];
         }
 
-        public final int getAccumulatedCount(int depth) {
+        public int getAccumulatedCount(int depth) {
             if (m_dataLength == 0 || depth < 0) {
                 return 0;
             }
@@ -812,13 +794,13 @@ public class AXmlResourceParser implements XmlPullParser {
             return accumulatedCount;
         }
 
-        public final void push(int prefix, int uri) {
+        public void push(int prefix, int uri) {
             if (m_depth == 0) {
                 increaseDepth();
             }
             ensureDataCapacity(2);
-            int offset = m_dataLength - 1;
-            int count = m_data[offset];
+            final int offset = m_dataLength - 1;
+            final int count = m_data[offset];
             m_data[offset - 1 - count * 2] = count + 1;
             m_data[offset] = prefix;
             m_data[offset + 1] = uri;
@@ -827,7 +809,7 @@ public class AXmlResourceParser implements XmlPullParser {
             m_count += 1;
         }
 
-        public final boolean pop(int prefix, int uri) {
+        public boolean pop(int prefix, int uri) {
             if (m_dataLength == 0) {
                 return false;
             }
@@ -858,7 +840,7 @@ public class AXmlResourceParser implements XmlPullParser {
             return false;
         }
 
-        public final boolean pop() {
+        public boolean pop() {
             if (m_dataLength == 0) {
                 return false;
             }
@@ -877,41 +859,41 @@ public class AXmlResourceParser implements XmlPullParser {
             return true;
         }
 
-        public final int getPrefix(int index) {
+        public int getPrefix(int index) {
             return get(index, true);
         }
 
-        public final int getUri(int index) {
+        public int getUri(int index) {
             return get(index, false);
         }
 
-        public final int findPrefix(int uri) {
+        public int findPrefix(int uri) {
             return find(uri, false);
         }
 
-        public final int findUri(int prefix) {
+        public int findUri(int prefix) {
             return find(prefix, true);
         }
 
-        public final int getDepth() {
+        public int getDepth() {
             return m_depth;
         }
 
-        public final void increaseDepth() {
+        public void increaseDepth() {
             ensureDataCapacity(2);
-            int offset = m_dataLength;
+            final int offset = m_dataLength;
             m_data[offset] = 0;
             m_data[offset + 1] = 0;
             m_dataLength += 2;
             m_depth += 1;
         }
 
-        public final void decreaseDepth() {
+        public void decreaseDepth() {
             if (m_dataLength == 0) {
                 return;
             }
-            int offset = m_dataLength - 1;
-            int count = m_data[offset];
+            final int offset = m_dataLength - 1;
+            final int count = m_data[offset];
             if ((offset - 1 - count * 2) == 0) {
                 return;
             }
@@ -921,12 +903,12 @@ public class AXmlResourceParser implements XmlPullParser {
         }
 
         private void ensureDataCapacity(int capacity) {
-            int available = (m_data.length - m_dataLength);
+            final int available = (m_data.length - m_dataLength);
             if (available > capacity) {
                 return;
             }
-            int newLength = (m_data.length + available) * 2;
-            int[] newData = new int[newLength];
+            final int newLength = (m_data.length + available) * 2;
+            final int[] newData = new int[newLength];
             System.arraycopy(m_data, 0, newData, 0, m_dataLength);
             m_data = newData;
         }

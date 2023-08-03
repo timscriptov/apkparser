@@ -21,22 +21,23 @@ public class AXmlDecoder {
     }
 
     public static AXmlDecoder decode(InputStream input) throws IOException {
-        AXmlDecoder axml = new AXmlDecoder(new ZInput(input));
+        final AXmlDecoder axml = new AXmlDecoder(new ZInput(input));
         axml.readStrings();
         return axml;
     }
 
     private void readStrings() throws IOException {
-        int type = mIn.readInt();
+        final int type = mIn.readInt();
         checkChunk(type, AXML_CHUNK_TYPE);
         mIn.readInt();// Chunk size
         mTableStrings = StringDecoder.read(this.mIn);
 
-        ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
-        byte[] buf = new byte[2048];
+        final ByteArrayOutputStream byteOut = new ByteArrayOutputStream();
+        final byte[] buf = new byte[2048];
         int num;
-        while ((num = mIn.read(buf, 0, 2048)) != -1)
+        while ((num = mIn.read(buf, 0, 2048)) != -1) {
             byteOut.write(buf, 0, num);
+        }
         data = byteOut.toByteArray();
         mIn.close();
         byteOut.close();
@@ -55,9 +56,9 @@ public class AXmlDecoder {
     }
 
     public void write(List<String> list, ZOutput out) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZOutput buf = new ZOutput(baos);
-        String[] array = new String[list.size()];
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ZOutput buf = new ZOutput(baos);
+        final String[] array = new String[list.size()];
         list.toArray(array);
         mTableStrings.write(array, buf);
         buf.writeFully(data);
@@ -69,8 +70,8 @@ public class AXmlDecoder {
     }
 
     public void write(ZOutput out) throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZOutput buf = new ZOutput(baos);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ZOutput buf = new ZOutput(baos);
         mTableStrings.write(buf);
         buf.writeFully(data);
         // write out
@@ -82,12 +83,12 @@ public class AXmlDecoder {
     }
 
     public byte[] encode() throws IOException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ZOutput buf = new ZOutput(baos);
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ZOutput buf = new ZOutput(baos);
         mTableStrings.write(buf);
         buf.writeFully(data);
 
-        byte[] bytes = baos.toByteArray();
+        final byte[] bytes = baos.toByteArray();
         baos.reset();
         // write out
         buf.writeInt(AXML_CHUNK_TYPE);
@@ -98,8 +99,8 @@ public class AXmlDecoder {
 
 
     private void checkChunk(int type, int expectedType) throws IOException {
-        if (type != expectedType)
+        if (type != expectedType) {
             throw new IOException(String.format("Invalid chunk type: expected=0x%08x, got=0x%08x", expectedType, type));
+        }
     }
-
 }
