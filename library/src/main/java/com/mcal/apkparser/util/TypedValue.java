@@ -204,6 +204,4 @@ public class TypedValue {
      * the top bit is the sign.
      */
     public static final int COMPLEX_MANTISSA_MASK = 0xffffff;
-
 }
-

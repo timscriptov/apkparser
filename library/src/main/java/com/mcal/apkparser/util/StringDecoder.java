@@ -7,16 +7,14 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.CharacterCodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class StringDecoder {
     public static final int IS_UTF8 = 0x100;
-    private static final CharsetDecoder UTF16LE_DECODER = Charset.forName(
-            "UTF-16LE").newDecoder();
-    private static final CharsetDecoder UTF8_DECODER = Charset.forName("UTF-8")
-            .newDecoder();
+    private static final CharsetDecoder UTF16LE_DECODER = StandardCharsets.UTF_16LE.newDecoder();
+    private static final CharsetDecoder UTF8_DECODER = StandardCharsets.UTF_8.newDecoder();
     private static final int CHUNK_STRINGPOOL_TYPE = 0x001C0001;
     private static final int CHUNK_NULL_TYPE = 0x00000000;
     private String[] m_strings;
@@ -87,11 +85,10 @@ public class StringDecoder {
     }
 
     private static int[] getVarint(byte[] array, int offset) {
-        if ((array[offset] & 0x80) == 0)
+        if ((array[offset] & 0x80) == 0) {
             return new int[]{array[offset] & 0x7f, 1};
-        else {
-            return new int[]{
-                    ((array[offset] & 0x7f) << 8) | array[offset + 1] & 0xFF, 2};
+        } else {
+            return new int[]{((array[offset] & 0x7f) << 8) | array[offset + 1] & 0xFF, 2};
         }
 
         // int val = array[offset];
@@ -104,9 +101,9 @@ public class StringDecoder {
     }
 
     protected static byte[] getVarBytes(int val) {
-        if ((val & 0x7f) == val)// 111 1111
+        if ((val & 0x7f) == val) { // 111 1111
             return new byte[]{(byte) val};
-        else {
+        } else {
             byte[] b = new byte[2];
             b[0] = (byte) (val >>> 8 | 0x80);
             b[1] = (byte) (val & 0xff);
@@ -114,12 +111,12 @@ public class StringDecoder {
         }
     }
 
-    private static String decodeString(int offset, int length, boolean utf8,
-                                       byte[] data) {
+    private static String decodeString(int offset, int length, boolean utf8, byte[] data) {
         try {
             return (utf8 ? UTF8_DECODER : UTF16LE_DECODER).decode(
                     ByteBuffer.wrap(data, offset, length)).toString();
-        } catch (CharacterCodingException ignored) {
+        } catch (CharacterCodingException e) {
+            e.printStackTrace();
         }
         return null;
     }
@@ -148,8 +145,9 @@ public class StringDecoder {
 
     public void getStrings(List<String> list) {
         int size = getSize();
-        for (int i = 0; i < size; i++)
+        for (int i = 0; i < size; i++) {
             list.add(getString(i));
+        }
     }
 
     public void write(ZOutput out) throws IOException {
@@ -180,7 +178,7 @@ public class StringDecoder {
                 byte[] b = getVarBytes(charBuf.length);
                 mStrings.writeFully(b);
                 len += b.length;
-                byte[] buf = var.getBytes("UTF-8");
+                byte[] buf = var.getBytes(StandardCharsets.UTF_8);
                 b = getVarBytes(buf.length);
                 mStrings.writeFully(b);
                 len += b.length;
@@ -195,8 +193,9 @@ public class StringDecoder {
                 String var = s[i];
                 char[] charBuf = var.toCharArray();
                 mStrings.writeShort((short) charBuf.length);
-                for (char c : charBuf)
+                for (char c : charBuf) {
                     mStrings.writeChar(c);
+                }
                 mStrings.writeShort((short) 0);
                 len += charBuf.length * 2 + 4;
             }
@@ -206,8 +205,9 @@ public class StringDecoder {
         int size_mod = m_strings_size % 4;// m_strings_size%4
         // padding 0
         if (size_mod != 0) {
-            for (int i = 0; i < 4 - size_mod; i++)
+            for (int i = 0; i < 4 - size_mod; i++) {
                 bOut.write(0);
+            }
             m_strings_size += 4 - size_mod;
         }
         byte[] m_strings = bOut.toByteArray();
@@ -225,15 +225,18 @@ public class StringDecoder {
         led.writeInt(stylesOffset == 0 ? 0 : stylesOffset + i * 4);
 
         led.writeIntArray(offset);
-        if (styleOffsetCount != 0)
-            for (int j : m_styleOffsets)
+        if (styleOffsetCount != 0) {
+            for (int j : m_styleOffsets) {
                 led.writeInt(j);
+            }
+        }
 
         led.writeFully(m_strings);
 
-        if (m_styles != null)
+        if (m_styles != null) {
             // System.out.println("write m_styles");
             led.writeIntArray(m_styles);
+        }
         out.writeInt(CHUNK_STRINGPOOL_TYPE);
 
         byte[] b = outBuf.toByteArray();
@@ -252,13 +255,13 @@ public class StringDecoder {
     }
 
     public String getString(int index) {
-        if (index >= 0)
+        if (index >= 0) {
             return m_strings[index];
+        }
         return null;
     }
 
     public int getSize() {
         return m_strings.length;
     }
-
 }

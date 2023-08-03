@@ -35,6 +35,5 @@ public interface CentralDirectoryParsingZipExtraField extends ZipExtraField {
      * @param length the number of bytes in the array from offset
      * @throws ZipException on error
      */
-    void parseFromCentralDirectoryData(byte[] data, int offset, int length)
-            throws ZipException;
+    void parseFromCentralDirectoryData(byte[] data, int offset, int length) throws ZipException;
 }

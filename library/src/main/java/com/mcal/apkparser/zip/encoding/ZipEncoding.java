@@ -84,5 +84,4 @@ public interface ZipEncoding {
     String decode(byte[] data) throws IOException;
 
     String getEncoding();
-
 }

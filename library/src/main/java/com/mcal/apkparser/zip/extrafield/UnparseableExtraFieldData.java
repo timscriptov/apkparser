@@ -33,9 +33,7 @@ import com.mcal.apkparser.zip.ZipUtil;
  * APPNOTE.TXT">.ZIP File Format Specification</a>
  * @since Ant 1.8.1
  */
-public final class UnparseableExtraFieldData
-        implements CentralDirectoryParsingZipExtraField {
-
+public final class UnparseableExtraFieldData implements CentralDirectoryParsingZipExtraField {
     private static final ZipShort HEADER_ID = new ZipShort(0xACC1);
 
     private byte[] localFileData;
@@ -108,13 +106,11 @@ public final class UnparseableExtraFieldData
      * @param offset offset into buffer to read data
      * @param length the length of data
      */
-    public void parseFromCentralDirectoryData(byte[] buffer, int offset,
-                                              int length) {
+    public void parseFromCentralDirectoryData(byte[] buffer, int offset, int length) {
         centralDirectoryData = new byte[length];
         System.arraycopy(buffer, offset, centralDirectoryData, 0, length);
         if (localFileData == null) {
             parseFromLocalFileData(buffer, offset, length);
         }
     }
-
 }

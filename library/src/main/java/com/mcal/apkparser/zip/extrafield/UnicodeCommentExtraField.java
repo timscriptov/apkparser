@@ -53,8 +53,7 @@ public class UnicodeCommentExtraField extends AbstractUnicodeExtraField {
      * @param len   The length of the encoded comment or comment in
      *              <code>bytes</code>.
      */
-    public UnicodeCommentExtraField(String text, byte[] bytes, int off,
-                                    int len) {
+    public UnicodeCommentExtraField(String text, byte[] bytes, int off, int len) {
         super(text, bytes, off, len);
     }
 
@@ -72,5 +71,4 @@ public class UnicodeCommentExtraField extends AbstractUnicodeExtraField {
     public ZipShort getHeaderId() {
         return UCOM_ID;
     }
-
 }

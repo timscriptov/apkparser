@@ -59,22 +59,21 @@ public class SparseArray<E> {
 
     private static int binarySearch(int[] a, int start, int len, int key) {
         int high = start + len, low = start - 1, guess;
-
         while (high - low > 1) {
             guess = (high + low) / 2;
-
-            if (a[guess] < key)
+            if (a[guess] < key) {
                 low = guess;
-            else
+            } else {
                 high = guess;
+            }
         }
-
-        if (high == start + len)
+        if (high == start + len) {
             return ~(start + len);
-        else if (a[high] == key)
+        } else if (a[high] == key) {
             return high;
-        else
+        } else {
             return ~high;
+        }
     }
 
     /**
@@ -91,7 +90,6 @@ public class SparseArray<E> {
      */
     public E get(int key, E valueIfKeyNotFound) {
         int i = binarySearch(mKeys, 0, mSize, key);
-
         if (i < 0 || mValues[i] == DELETED) {
             return valueIfKeyNotFound;
         } else {
@@ -104,7 +102,6 @@ public class SparseArray<E> {
      */
     public void delete(int key) {
         int i = binarySearch(mKeys, 0, mSize, key);
-
         if (i >= 0) {
             if (mValues[i] != DELETED) {
                 mValues[i] = DELETED;
@@ -122,28 +119,22 @@ public class SparseArray<E> {
 
     private void gc() {
         // Log.e("SparseArray", "gc start with " + mSize);
-
         int n = mSize;
         int o = 0;
         int[] keys = mKeys;
         Object[] values = mValues;
-
         for (int i = 0; i < n; i++) {
             Object val = values[i];
-
             if (val != DELETED) {
                 if (i != o) {
                     keys[o] = keys[i];
                     values[o] = val;
                 }
-
                 o++;
             }
         }
-
         mGarbage = false;
         mSize = o;
-
         // Log.e("SparseArray", "gc end with " + mSize);
     }
 
@@ -154,45 +145,35 @@ public class SparseArray<E> {
      */
     public void put(int key, E value) {
         int i = binarySearch(mKeys, 0, mSize, key);
-
         if (i >= 0) {
             mValues[i] = value;
         } else {
             i = ~i;
-
             if (i < mSize && mValues[i] == DELETED) {
                 mKeys[i] = key;
                 mValues[i] = value;
                 return;
             }
-
             if (mGarbage && mSize >= mKeys.length) {
                 gc();
-
                 // Search again because indices may have changed.
                 i = ~binarySearch(mKeys, 0, mSize, key);
             }
-
             if (mSize >= mKeys.length) {
                 int n = Math.max(mSize + 1, mKeys.length * 2);
-
                 int[] nkeys = new int[n];
                 Object[] nvalues = new Object[n];
-
                 // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
                 System.arraycopy(mKeys, 0, nkeys, 0, mKeys.length);
                 System.arraycopy(mValues, 0, nvalues, 0, mValues.length);
-
                 mKeys = nkeys;
                 mValues = nvalues;
             }
-
             if (mSize - i != 0) {
                 // Log.e("SparseArray", "move " + (mSize - i));
                 System.arraycopy(mKeys, i, mKeys, i + 1, mSize - i);
                 System.arraycopy(mValues, i, mValues, i + 1, mSize - i);
             }
-
             mKeys[i] = key;
             mValues[i] = value;
             mSize++;
@@ -207,7 +188,6 @@ public class SparseArray<E> {
         if (mGarbage) {
             gc();
         }
-
         return mSize;
     }
 
@@ -220,7 +200,6 @@ public class SparseArray<E> {
         if (mGarbage) {
             gc();
         }
-
         return mKeys[index];
     }
 
@@ -233,7 +212,6 @@ public class SparseArray<E> {
         if (mGarbage) {
             gc();
         }
-
         return (E) mValues[index];
     }
 
@@ -246,7 +224,6 @@ public class SparseArray<E> {
         if (mGarbage) {
             gc();
         }
-
         mValues[index] = value;
     }
 
@@ -259,7 +236,6 @@ public class SparseArray<E> {
         if (mGarbage) {
             gc();
         }
-
         return binarySearch(mKeys, 0, mSize, key);
     }
 
@@ -275,13 +251,11 @@ public class SparseArray<E> {
         if (mGarbage) {
             gc();
         }
-
         Object[] mValues = this.mValues;
-
-        for (int i = 0; i < mSize; i++)
+        for (int i = 0; i < mSize; i++) {
             if (mValues[i] == value)
                 return i;
-
+        }
         return -1;
     }
 
@@ -291,11 +265,9 @@ public class SparseArray<E> {
     public void clear() {
         int n = mSize;
         Object[] values = mValues;
-
         for (int i = 0; i < n; i++) {
             values[i] = null;
         }
-
         mSize = 0;
         mGarbage = false;
     }
@@ -309,26 +281,20 @@ public class SparseArray<E> {
             put(key, value);
             return;
         }
-
         if (mGarbage && mSize >= mKeys.length) {
             gc();
         }
-
         int pos = mSize;
         if (pos >= mKeys.length) {
             int n = Math.max(pos + 1, mKeys.length * 2);
-
             int[] nkeys = new int[n];
             Object[] nvalues = new Object[n];
-
             // Log.e("SparseArray", "grow " + mKeys.length + " to " + n);
             System.arraycopy(mKeys, 0, nkeys, 0, mKeys.length);
             System.arraycopy(mValues, 0, nvalues, 0, mValues.length);
-
             mKeys = nkeys;
             mValues = nvalues;
         }
-
         mKeys[pos] = key;
         mValues[pos] = value;
         mSize = pos + 1;
@@ -344,7 +310,6 @@ public class SparseArray<E> {
         if (mGarbage && mSize >= mKeys.length) {
             gc();
         }
-
         if (mKeys.length < capacity) {
             int[] nkeys = new int[capacity];
             Object[] nvalues = new Object[capacity];

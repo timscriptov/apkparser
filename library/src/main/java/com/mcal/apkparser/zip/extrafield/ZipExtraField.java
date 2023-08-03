@@ -86,6 +86,5 @@ public interface ZipExtraField {
      * @throws ZipException on error
      * @since 1.1
      */
-    void parseFromLocalFileData(byte[] data, int offset, int length)
-            throws ZipException;
+    void parseFromLocalFileData(byte[] data, int offset, int length) throws ZipException;
 }

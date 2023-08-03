@@ -1,11 +1,11 @@
 package com.mcal.apkparser.zip.encoding;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.charset.UnsupportedCharsetException;
 
 @SuppressWarnings("SpellCheckingInspection")
 public class DetectEncoding {
-
     public static final Charset CHARSET_UTF8;
     public static final Charset CHARSET_GB2312;
     public static final Charset CHARSET_GBK;
@@ -24,10 +24,10 @@ public class DetectEncoding {
     private final static int TOTAL_ENCODINGS = 8;
     // Frequency tables to hold the GB, Big5, and EUC-TW character
     // frequencies
-    private static final int GBFreq[][];
-    private static final int GBKFreq[][];
-    private static final int Big5Freq[][];
-    private static final int EUC_TWFreq[][];
+    private static final int[][] GBFreq;
+    private static final int[][] GBKFreq;
+    private static final int[][] Big5Freq;
+    private static final int[][] EUC_TWFreq;
     private static final Charset[] encodeCharset;
 
     // Initialize the Frequency Table for GB, Big5, EUC-TW
@@ -37,7 +37,7 @@ public class DetectEncoding {
         Big5Freq = new int[94][158];
         EUC_TWFreq = new int[94][94];
 
-        CHARSET_UTF8 = Charset.forName("UTF-8");
+        CHARSET_UTF8 = StandardCharsets.UTF_8;
         CHARSET_GB2312 = Charset.forName("GB2312");
         CHARSET_GBK = Charset.forName("GBK");
         CHARSET_UNICODE = Charset.forName("Unicode");
@@ -115,8 +115,9 @@ public class DetectEncoding {
     public static String encodeString(byte[] data, boolean mustEncodable) {
         DetectEncoding detectEncoding = new DetectEncoding();
         detectEncoding.update(data);
-        if (mustEncodable && detectEncoding.encoding_guess == OTHER)
+        if (mustEncodable && detectEncoding.encoding_guess == OTHER) {
             return null;
+        }
         Charset charset = detectEncoding.getEncode();
         return new String(data, charset);
     }
@@ -150,23 +151,26 @@ public class DetectEncoding {
     @SuppressWarnings("ConstantConditions")
     static void initialize_frequencies() {
         int i, j;
-
-        for (i = 0; i < 93; i++)
-            for (j = 0; j < 93; j++)
+        for (i = 0; i < 93; i++) {
+            for (j = 0; j < 93; j++) {
                 GBFreq[i][j] = 0;
-
-        for (i = 0; i < 126; i++)
-            for (j = 0; j < 191; j++)
+            }
+        }
+        for (i = 0; i < 126; i++) {
+            for (j = 0; j < 191; j++) {
                 GBKFreq[i][j] = 0;
-
-        for (i = 0; i < 93; i++)
-            for (j = 0; j < 157; j++)
+            }
+        }
+        for (i = 0; i < 93; i++) {
+            for (j = 0; j < 157; j++) {
                 Big5Freq[i][j] = 0;
-
-        for (i = 0; i < 93; i++)
-            for (j = 0; j < 93; j++)
+            }
+        }
+        for (i = 0; i < 93; i++) {
+            for (j = 0; j < 93; j++) {
                 EUC_TWFreq[i][j] = 0;
-
+            }
+        }
         GBFreq[20][35] = 599;
         GBFreq[49][26] = 598;
         GBFreq[41][38] = 597;
@@ -1701,8 +1705,9 @@ public class DetectEncoding {
             }
         }
 
-        if (maxScore <= 50)
+        if (maxScore <= 50) {
             encoding_guess = OTHER;
+        }
     }
 
     public Charset getEncode() {
@@ -1808,10 +1813,11 @@ public class DetectEncoding {
                     gb2312_totalfreq += 500;
                     row = rawtext[i] + 256 - 0xA1;
                     column = rawtext[i + 1] + 256 - 0xA1;
-                    if (GBFreq[row][column] != 0)
+                    if (GBFreq[row][column] != 0) {
                         gb2312_gbfreq += GBFreq[row][column];
-                    else if (15 <= row && row < 55)
+                    } else if (15 <= row && row < 55) {
                         gb2312_gbfreq += 200;
+                    }
                 }
                 i++;
             }
@@ -1841,11 +1847,11 @@ public class DetectEncoding {
 
                     // System.out.println("original row " + row + " column " +
                     // column);
-                    if (GBFreq[row][column] != 0)
+                    if (GBFreq[row][column] != 0) {
                         gbk_freq += GBFreq[row][column];
-                    else if (15 <= row && row < 55)
+                    } else if (15 <= row && row < 55) {
                         gbk_freq += 200;
-
+                    }
                 } else if ((byte) 0x81 <= rawtext[i]
                         && rawtext[i] <= (byte) 0xFE && // Extended GB range
                         ((byte) 0x80 <= rawtext[i + 1]
@@ -1854,10 +1860,11 @@ public class DetectEncoding {
                     gbk_chars++;
                     gbk_totalfreq += 500;
                     row = rawtext[i] + 256 - 0x81;
-                    if (0x40 <= rawtext[i + 1] && rawtext[i + 1] <= 0x7E)
+                    if (0x40 <= rawtext[i + 1] && rawtext[i + 1] <= 0x7E) {
                         column = rawtext[i + 1] - 0x40;
-                    else
+                    } else {
                         column = rawtext[i + 1] + 256 - 0x80;
+                    }
                     // System.out.println("extended row " + row + " column " +
                     // column + " rawtext[i] " + rawtext[i]);
                     if (GBKFreq[row][column] != 0)
@@ -1891,14 +1898,16 @@ public class DetectEncoding {
                     big5_chars++;
                     big5_totalfreq += 500;
                     row = rawtext[i] + 256 - 0xA1;
-                    if (0x40 <= rawtext[i + 1] && rawtext[i + 1] <= 0x7E)
+                    if (0x40 <= rawtext[i + 1] && rawtext[i + 1] <= 0x7E) {
                         column = rawtext[i + 1] - 0x40;
-                    else
+                    } else {
                         column = rawtext[i + 1] + 256 - 0x61;
-                    if (Big5Freq[row][column] != 0)
+                    }
+                    if (Big5Freq[row][column] != 0) {
                         big5_freq += Big5Freq[row][column];
-                    else if (3 <= row && row <= 37)
+                    } else if (3 <= row && row <= 37) {
                         big5_freq += 200;
+                    }
                 }
                 i++;
             }
@@ -1939,10 +1948,11 @@ public class DetectEncoding {
                     tw_totalfreq += 500;
                     row = rawtext[i] + 256 - 0xA1;
                     column = rawtext[i + 1] + 256 - 0xA1;
-                    if (EUC_TWFreq[row][column] != 0)
+                    if (EUC_TWFreq[row][column] != 0) {
                         tw_freq += EUC_TWFreq[row][column];
-                    else if (35 <= row && row <= 92)
+                    } else if (35 <= row && row <= 92) {
                         tw_freq += 150;
+                    }
                     i++;
                 }
             }
@@ -1959,9 +1969,10 @@ public class DetectEncoding {
         // Check to see if characters fit into acceptable ranges
         int rawtextlen = offset + length;
         for (int i = offset; i < rawtextlen; i++)
-            if ((rawtext[i] & (byte) 0x7F) == rawtext[i])
+            if ((rawtext[i] & (byte) 0x7F) == rawtext[i]) {
                 asciibytes++;
-                // Ignore ASCII, can throw off count
+            }
+            // Ignore ASCII, can throw off count
             else if (-64 <= rawtext[i] && rawtext[i] <= -33
                     && // Two bytes
                     i + 1 < rawtextlen && -128 <= rawtext[i + 1]
@@ -1977,23 +1988,23 @@ public class DetectEncoding {
                 goodbytes += 3;
                 i += 2;
             }
-        if (asciibytes == length)
+        if (asciibytes == length) {
             return 0;
+        }
 
         utf8Length += length - asciibytes;
         int score = (int) (100 * ((float) goodbytes / (float) (utf8Length)));
 
         // If not above 98, reduce to zero to prevent coincidental matches
         // Allows for some (few) bad formed sequences
-        if (score > 98)
+        if (score > 98) {
             return score;
-        else if (score > 95 && goodbytes > 30)
+        } else if (score > 95 && goodbytes > 30) {
             return score;
-        else {
+        } else {
             goodbytes = 0;
             return 0;
         }
-
     }
 
     private int utf16_probability(byte[] rawtext, int offset, int length) {
@@ -2004,8 +2015,9 @@ public class DetectEncoding {
         // int goodbytes = 0, asciibytes = 0;
 
         if ((byte) 0xFE == rawtext[offset] && (byte) 0xFF == rawtext[offset + 1] || // Big-endian
-                (byte) 0xFF == rawtext[offset] && (byte) 0xFE == rawtext[offset + 1])
+                (byte) 0xFF == rawtext[offset] && (byte) 0xFE == rawtext[offset + 1]) {
             return 100;
+        }
 
         impossibleUTF16 = true;
         return 0;
@@ -2039,13 +2051,12 @@ public class DetectEncoding {
             if (ascii_score <= 0) {
                 return 0;
             }
-            if (aRawtext < 0)
+            if (aRawtext < 0) {
                 ascii_score = ascii_score - 5;
-            else if (aRawtext == (byte) 0x1B)
+            } else if (aRawtext == (byte) 0x1B) {
                 ascii_score = ascii_score - 5;
+            }
         }
-
         return ascii_score;
     }
-
 }

@@ -32,7 +32,6 @@ import java.util.zip.ZipException;
  */
 // CheckStyle:HideUtilityClassConstructorCheck OFF (bc)
 public class ExtraFieldUtils {
-
     private static final int WORD = 4;
 
     /**
@@ -64,11 +63,11 @@ public class ExtraFieldUtils {
             ZipExtraField ze = (ZipExtraField) c.newInstance();
             implementations.put(ze.getHeaderId(), c);
         } catch (ClassCastException cc) {
-            throw new RuntimeException(c + " doesn\'t implement ZipExtraField");
+            throw new RuntimeException(c + " doesn't implement ZipExtraField");
         } catch (InstantiationException ie) {
             throw new RuntimeException(c + " is not a concrete class");
         } catch (IllegalAccessException ie) {
-            throw new RuntimeException(c + "\'s no-arg constructor is not public");
+            throw new RuntimeException(c + "'s no-arg constructor is not public");
         }
     }
 
@@ -82,8 +81,7 @@ public class ExtraFieldUtils {
      * @throws IllegalAccessException if not allowed to instatiate the class
      * @since 1.1
      */
-    public static ZipExtraField createExtraField(ZipShort headerId)
-            throws InstantiationException, IllegalAccessException {
+    public static ZipExtraField createExtraField(ZipShort headerId) throws InstantiationException, IllegalAccessException {
         Class c = implementations.get(headerId);
         if (c != null) {
             return (ZipExtraField) c.newInstance();
@@ -117,8 +115,7 @@ public class ExtraFieldUtils {
      * @throws ZipException on error
      * @since 1.1
      */
-    public static ZipExtraField[] parse(byte[] data, boolean local)
-            throws ZipException {
+    public static ZipExtraField[] parse(byte[] data, boolean local) throws ZipException {
         return parse(data, local, UnparseableExtraField.THROW);
     }
 
@@ -135,9 +132,7 @@ public class ExtraFieldUtils {
      * @throws ZipException on error
      * @since Ant 1.8.1
      */
-    public static ZipExtraField[] parse(byte[] data, boolean local,
-                                        UnparseableExtraField onUnparseableData)
-            throws ZipException {
+    public static ZipExtraField[] parse(byte[] data, boolean local, UnparseableExtraField onUnparseableData) throws ZipException {
         List<ZipExtraField> v = new ArrayList<>();
         int start = 0;
         LOOP:
@@ -154,14 +149,11 @@ public class ExtraFieldUtils {
                                 + (data.length - start - WORD)
                                 + " bytes.");
                     case UnparseableExtraField.READ_KEY:
-                        UnparseableExtraFieldData field =
-                                new UnparseableExtraFieldData();
+                        UnparseableExtraFieldData field = new UnparseableExtraFieldData();
                         if (local) {
-                            field.parseFromLocalFileData(data, start,
-                                    data.length - start);
+                            field.parseFromLocalFileData(data, start, data.length - start);
                         } else {
-                            field.parseFromCentralDirectoryData(data, start,
-                                    data.length - start);
+                            field.parseFromCentralDirectoryData(data, start, data.length - start);
                         }
                         v.add(field);
                         /*FALLTHROUGH*/
@@ -171,8 +163,7 @@ public class ExtraFieldUtils {
                         // available data
                         break LOOP;
                     default:
-                        throw new ZipException("unknown UnparseableExtraField key: "
-                                + onUnparseableData.getKey());
+                        throw new ZipException("unknown UnparseableExtraField key: " + onUnparseableData.getKey());
                 }
             }
             try {
@@ -186,10 +177,8 @@ public class ExtraFieldUtils {
                                     length);
                 }
                 v.add(ze);
-            } catch (InstantiationException ie) {
+            } catch (InstantiationException | IllegalAccessException ie) {
                 throw new ZipException(ie.getMessage());
-            } catch (IllegalAccessException iae) {
-                throw new ZipException(iae.getMessage());
             }
             start += (length + WORD);
         }
@@ -297,15 +286,13 @@ public class ExtraFieldUtils {
          * Skip the extra field entirely and don't make its data
          * available - effectively removing the extra field data.
          */
-        public static final UnparseableExtraField SKIP
-                = new UnparseableExtraField(SKIP_KEY);
+        public static final UnparseableExtraField SKIP = new UnparseableExtraField(SKIP_KEY);
 
         /**
          * Read the extra field data into an instance of {@link
          * UnparseableExtraFieldData UnparseableExtraFieldData}.
          */
-        public static final UnparseableExtraField READ
-                = new UnparseableExtraField(READ_KEY);
+        public static final UnparseableExtraField READ = new UnparseableExtraField(READ_KEY);
 
         private final int key;
 

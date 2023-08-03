@@ -37,7 +37,6 @@ import com.mcal.apkparser.zip.ZipShort;
  * </pre>
  */
 public class UnicodePathExtraField extends AbstractUnicodeExtraField {
-
     public static final ZipShort UPATH_ID = new ZipShort(0x7075);
 
     public UnicodePathExtraField() {

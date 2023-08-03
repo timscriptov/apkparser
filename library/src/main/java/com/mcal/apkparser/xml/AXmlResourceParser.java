@@ -913,7 +913,7 @@ public class AXmlResourceParser implements XmlPullParser {
             m_data = newData;
         }
 
-        private final int find(int prefixOrUri, boolean prefix) {
+        private int find(int prefixOrUri, boolean prefix) {
             if (m_dataLength == 0) {
                 return -1;
             }
@@ -937,7 +937,7 @@ public class AXmlResourceParser implements XmlPullParser {
             return -1;
         }
 
-        private final int get(int index, boolean prefix) {
+        private int get(int index, boolean prefix) {
             if (m_dataLength == 0 || index < 0) {
                 return -1;
             }

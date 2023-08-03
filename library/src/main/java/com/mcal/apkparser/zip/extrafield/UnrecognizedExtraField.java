@@ -28,9 +28,7 @@ import com.mcal.apkparser.zip.ZipUtil;
  * <p>Assumes local file data and central directory entries are
  * identical - unless told the opposite.</p>
  */
-public class UnrecognizedExtraField
-        implements CentralDirectoryParsingZipExtraField {
-
+public class UnrecognizedExtraField implements CentralDirectoryParsingZipExtraField {
     /**
      * The Header-ID.
      *
@@ -149,8 +147,7 @@ public class UnrecognizedExtraField
      * @param offset the source location in the data array.
      * @param length the number of bytes to use in the data array.
      */
-    public void parseFromCentralDirectoryData(byte[] data, int offset,
-                                              int length) {
+    public void parseFromCentralDirectoryData(byte[] data, int offset, int length) {
         byte[] tmp = new byte[length];
         System.arraycopy(data, offset, tmp, 0, length);
         setCentralDirectoryData(tmp);
@@ -158,5 +155,4 @@ public class UnrecognizedExtraField
             setLocalFileDataData(tmp);
         }
     }
-
 }

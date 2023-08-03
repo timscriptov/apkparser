@@ -50,7 +50,6 @@ import java.util.zip.ZipException;
  * word order, device numbers are currently not supported.</p>
  */
 public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
-
     private static final ZipShort HEADER_ID = new ZipShort(0x756E);
     private static final int WORD = 4;
     /**
@@ -149,13 +148,10 @@ public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
 
         byte[] linkArray = getLinkedFile().getBytes();
         // CheckStyle:MagicNumber OFF
-        System.arraycopy(ZipLong.getBytes(linkArray.length),
-                0, data, 2, WORD);
+        System.arraycopy(ZipLong.getBytes(linkArray.length), 0, data, 2, WORD);
 
-        System.arraycopy(ZipShort.getBytes(getUserId()),
-                0, data, 6, 2);
-        System.arraycopy(ZipShort.getBytes(getGroupId()),
-                0, data, 8, 2);
+        System.arraycopy(ZipShort.getBytes(getUserId()), 0, data, 6, 2);
+        System.arraycopy(ZipShort.getBytes(getGroupId()), 0, data, 8, 2);
 
         System.arraycopy(linkArray, 0, data, 10, linkArray.length);
         // CheckStyle:MagicNumber ON
@@ -303,9 +299,7 @@ public class AsiExtraField implements ZipExtraField, UnixStat, Cloneable {
      * @throws ZipException on error
      * @since 1.1
      */
-    public void parseFromLocalFileData(byte[] data, int offset, int length)
-            throws ZipException {
-
+    public void parseFromLocalFileData(byte[] data, int offset, int length) throws ZipException {
         long givenChecksum = ZipLong.getValue(data, offset);
         byte[] tmp = new byte[length - WORD];
         System.arraycopy(data, offset + WORD, tmp, 0, length - WORD);

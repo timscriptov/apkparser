@@ -83,9 +83,10 @@ class FallbackZipEncoding implements ZipEncoding {
 
     @Override
     public String getEncoding() {
-        if (this.charset == null)
+        if (this.charset == null) {
             return de.getEncode().name();
-        else
+        } else {
             return this.charset;
+        }
     }
 }
