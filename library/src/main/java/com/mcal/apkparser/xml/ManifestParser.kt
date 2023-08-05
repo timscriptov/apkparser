@@ -36,180 +36,84 @@ class ManifestParser {
         return byteArray
     }
 
-    var packageName: String? = null
-        get() = findAttributeStringValue("manifest", "package")
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "manifest", "package")
-            }
-            field = attributeValue
-        }
+    fun getPackageName() = findAttributeStringValue("application", "package")
+    fun setPackageName(attributeValue: String) = patching(attributeValue, "application", "package")
 
-    var label: String? = null
-        get() = findAttributeStringValue("application", LABEL)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "application", LABEL)
-            }
-            field = attributeValue
-        }
+    fun getLabel() = findAttributeStringValue("application", LABEL)
+//    fun setLabel(attributeValue: String) = patching(attributeValue, "application", LABEL)
 
-    var icon: String? = null
-        get() = findAttributeStringValue("application", ICON)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "application", ICON)
-            }
-            field = attributeValue
-        }
+    fun getIcon() = findAttributeStringValue("application", ICON)
+//    fun setIcon(attributeValue: String) = patching(attributeValue, "application", ICON)
 
-    var theme: String? = null
-        get() = findAttributeStringValue("application", THEME)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "application", THEME)
-            }
-            field = attributeValue
-        }
+    fun getTheme() = findAttributeStringValue("application", THEME)
+//    fun setTheme(attributeValue: String) = patching(attributeValue, "application", THEME)
 
-    var applicationName: String? = null
-        get() = findAttributeStringValue("application", NAME)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "application", NAME)
-            }
-            field = attributeValue
-        }
 
-    var appComponentFactoryName: String? = null
-        get() = findAttributeStringValue("application", APP_COMPONENT_FACTORY)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "application", APP_COMPONENT_FACTORY)
-            }
-            field = attributeValue
-        }
+    fun getApplicationName() = findAttributeStringValue("application", NAME)
+    fun setApplicationName(attributeValue: String) = patching(attributeValue, "application", NAME)
 
-    var versionCode: String? = null
-        get() = findAttributeStringValue("manifest", VERSION_CODE)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "manifest", VERSION_CODE)
-            }
-            field = attributeValue
-        }
+    fun getAppComponentFactoryName() =
+        findAttributeStringValue("application", APP_COMPONENT_FACTORY)
 
-    var versionName: String? = null
-        get() = findAttributeStringValue("manifest", VERSION_NAME)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "manifest", VERSION_NAME)
-            }
-            field = attributeValue
-        }
+    fun setAppComponentFactoryName(attributeValue: String) =
+        patching(attributeValue, "application", APP_COMPONENT_FACTORY)
 
-    var compileSdkVersion: String? = null
-        get() = findAttributeStringValue("manifest", COMPILE_SDK_VERSION)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "manifest", COMPILE_SDK_VERSION)
-            }
-            field = attributeValue
-        }
+    fun getVersionCode() = findAttributeStringValue("manifest", VERSION_CODE)
+    fun setVersionCode(attributeValue: String) = patching(attributeValue, "manifest", VERSION_CODE)
 
-    var compileSdkVersionCodename: String? = null
-        get() = findAttributeStringValue("manifest", COMPILE_SDK_VERSION_CODENAME)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "manifest", COMPILE_SDK_VERSION_CODENAME)
-            }
-            field = attributeValue
-        }
+    fun getVersionName() = findAttributeStringValue("manifest", VERSION_NAME)
+    fun setVersionName(attributeValue: String) = patching(attributeValue, "manifest", VERSION_NAME)
 
-    var minSdkVersion: String? = null
-        get() = findAttributeStringValue("manifest", MIN_SDK_VERSION)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "manifest", MIN_SDK_VERSION)
-            }
-            field = attributeValue
-        }
+    fun getCompileSdkVersion() = findAttributeStringValue("manifest", COMPILE_SDK_VERSION)
+    fun setCompileSdkVersion(attributeValue: String) =
+        patching(attributeValue, "manifest", COMPILE_SDK_VERSION)
 
-    var targetSdkVersion: String? = null
-        get() = findAttributeStringValue("manifest", TARGET_SDK_VERSION)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue, "manifest", TARGET_SDK_VERSION)
-            }
-            field = attributeValue
-        }
+    fun getCompileSdkVersionCodename() =
+        findAttributeStringValue("manifest", COMPILE_SDK_VERSION_CODENAME)
 
-    var extractNativeLibs: Boolean? = false
-        get() = findAttributeBooleanValue("application", EXTRACT_NATIVE_LIBS)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue.toString(), "application", EXTRACT_NATIVE_LIBS)
-            }
-            field = attributeValue
-        }
+    fun setCompileSdkVersionCodename(attributeValue: String) =
+        patching(attributeValue, "manifest", COMPILE_SDK_VERSION_CODENAME)
 
-    var allowBackup: Boolean? = false
-        get() = findAttributeBooleanValue("application", ALLOW_BACKUP)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue.toString(), "application", ALLOW_BACKUP)
-            }
-            field = attributeValue
-        }
+    fun getMinSdkVersion() = findAttributeStringValue("manifest", MIN_SDK_VERSION)
+    fun setMinSdkVersion(attributeValue: String) =
+        patching(attributeValue, "manifest", MIN_SDK_VERSION)
 
-    var largeHeap: Boolean? = false
-        get() = findAttributeBooleanValue("application", LARGE_HEAP)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue.toString(), "application", LARGE_HEAP)
-            }
-            field = attributeValue
-        }
+    fun getTargetSdkVersion() = findAttributeStringValue("manifest", TARGET_SDK_VERSION)
+    fun setTargetSdkVersion(attributeValue: String) =
+        patching(attributeValue, "manifest", TARGET_SDK_VERSION)
 
-    var supportsRtl: Boolean? = false
-        get() = findAttributeBooleanValue("application", SUPPORTS_RTL)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue.toString(), "application", SUPPORTS_RTL)
-            }
-            field = attributeValue
-        }
+    fun getExtractNativeLibs() = findAttributeBooleanValue("application", EXTRACT_NATIVE_LIBS)
+    fun setExtractNativeLibs(enabled: Boolean) =
+        patching(enabled.toString(), "application", EXTRACT_NATIVE_LIBS)
 
-    var usesCleartextTraffic: Boolean? = false
-        get() = findAttributeBooleanValue("application", USES_CLEARTEXT_TRAFFIC)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue.toString(), "application", USES_CLEARTEXT_TRAFFIC)
-            }
-            field = attributeValue
-        }
+    fun getAllowBackup() = findAttributeBooleanValue("application", ALLOW_BACKUP)
+    fun setAllowBackup(enabled: Boolean) = patching(enabled.toString(), "application", ALLOW_BACKUP)
 
-    var requestLegacyExternalStorage: Boolean? = false
-        get() = findAttributeBooleanValue("application", REQUEST_LEGACY_EXTERNAL_STORAGE)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue.toString(), "application", REQUEST_LEGACY_EXTERNAL_STORAGE)
-            }
-            field = attributeValue
-        }
+    fun getLargeHeap() = findAttributeBooleanValue("application", LARGE_HEAP)
+    fun setLargeHeap(enabled: Boolean) = patching(enabled.toString(), "application", LARGE_HEAP)
 
-    var preserveLegacyExternalStorage: Boolean? = false
-        get() = findAttributeBooleanValue("application", PRESERVE_LEGACY_EXTERNAL_STORAGE)
-        set(attributeValue) {
-            if (attributeValue != null) {
-                patching(attributeValue.toString(), "application", PRESERVE_LEGACY_EXTERNAL_STORAGE)
-            }
-            field = attributeValue
-        }
+    fun getSupportsRtl() = findAttributeBooleanValue("application", SUPPORTS_RTL)
+    fun setSupportsRtl(enabled: Boolean) = patching(enabled.toString(), "application", SUPPORTS_RTL)
 
-    val allServiceName = findAttributeListValue("service", NAME)
-    val allReceiverName = findAttributeListValue("receiver", NAME)
-    val allActivityName = findAttributeListValue("activity", NAME)
+    fun getUsesCleartextTraffic() = findAttributeBooleanValue("application", USES_CLEARTEXT_TRAFFIC)
+    fun setUsesCleartextTraffic(enabled: Boolean) =
+        patching(enabled.toString(), "application", USES_CLEARTEXT_TRAFFIC)
+
+    fun getRequestLegacyExternalStorage() =
+        findAttributeBooleanValue("application", REQUEST_LEGACY_EXTERNAL_STORAGE)
+
+    fun setRequestLegacyExternalStorage(enabled: Boolean) =
+        patching(enabled.toString(), "application", REQUEST_LEGACY_EXTERNAL_STORAGE)
+
+    fun getPreserveLegacyExternalStorage() =
+        findAttributeBooleanValue("application", PRESERVE_LEGACY_EXTERNAL_STORAGE)
+
+    fun setPreserveLegacyExternalStorage(enabled: Boolean) =
+        patching(enabled.toString(), "application", PRESERVE_LEGACY_EXTERNAL_STORAGE)
+
+    fun getAllServiceName() = findAttributeListValue("service", NAME)
+    fun getAllReceiverName() = findAttributeListValue("receiver", NAME)
+    fun getAllActivityName() = findAttributeListValue("activity", NAME)
 
     private fun patching(attributeValue: String, name: String, attributeName: String) {
         try {
@@ -433,7 +337,7 @@ class ManifestParser {
         return null
     }
 
-    private fun findAttributeListValue(name: String, attributeNameResource: Int): List<String> {
+    fun findAttributeListValue(name: String, attributeNameResource: Int): List<String> {
         val list = arrayListOf<String>()
         try {
             val parser = parser

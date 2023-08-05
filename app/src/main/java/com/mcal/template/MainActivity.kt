@@ -21,12 +21,12 @@ class MainActivity : AppCompatActivity() {
         binding.setPkg.setOnClickListener {
             val parser = ManifestParser(manifestBytes)
             CoroutineScope(Dispatchers.IO).launch {
-                parser.packageName = valueBinding.text.toString()
+                parser.setPackageName(valueBinding.text.toString())
                 parser.get()?.let {
                     manifestBytes = it
                 }
                 withContext(Dispatchers.Main) {
-                    val name = parser.packageName
+                    val name = parser.getPackageName()
                     if (name != null) {
                         dialog(name)
                     } else {
@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.getPkg.setOnClickListener {
             val parser = ManifestParser(manifestBytes)
-            val name = parser.packageName
+            val name = parser.getPackageName()
             if (name != null) {
                 dialog(name)
             } else {
@@ -49,12 +49,12 @@ class MainActivity : AppCompatActivity() {
         binding.setAn.setOnClickListener {
             val parser = ManifestParser(manifestBytes)
             CoroutineScope(Dispatchers.IO).launch {
-                parser.applicationName = valueBinding.text.toString()
+                parser.setApplicationName(valueBinding.text.toString())
                 parser.get()?.let {
                     manifestBytes = it
                 }
                 withContext(Dispatchers.Main) {
-                    val name = parser.applicationName
+                    val name = parser.getApplicationName()
                     if (name != null) {
                         dialog(name)
                     } else {
@@ -66,7 +66,7 @@ class MainActivity : AppCompatActivity() {
 
         binding.getAn.setOnClickListener {
             val parser = ManifestParser(manifestBytes)
-            val name = parser.applicationName
+            val name = parser.getApplicationName()
             if (name != null) {
                 dialog(name)
             } else {
@@ -77,12 +77,12 @@ class MainActivity : AppCompatActivity() {
         binding.setAcf.setOnClickListener {
             val parser = ManifestParser(manifestBytes)
             CoroutineScope(Dispatchers.IO).launch {
-                parser.appComponentFactoryName = valueBinding.text.toString()
+                parser.setAppComponentFactoryName(valueBinding.text.toString())
                 parser.get()?.let {
                     manifestBytes = it
                 }
                 withContext(Dispatchers.Main) {
-                    val name = parser.appComponentFactoryName
+                    val name = parser.getAppComponentFactoryName()
                     if (name != null) {
                         dialog(name)
                     } else {
@@ -94,39 +94,37 @@ class MainActivity : AppCompatActivity() {
 
         binding.getAcf.setOnClickListener {
             val parser = ManifestParser(assets.open("AndroidManifest.xml"))
-            val name = parser.appComponentFactoryName
+            val name = parser.getAppComponentFactoryName()
             if (name != null) {
                 dialog(name)
             } else {
                 dialog("null")
-            }
-        }
-
-        binding.setLabel.setOnClickListener {
-            val parser = ManifestParser(manifestBytes)
-            CoroutineScope(Dispatchers.IO).launch {
-                parser.label = valueBinding.text.toString()
-                parser.get()?.let {
-                    manifestBytes = it
-                }
-                withContext(Dispatchers.Main) {
-                    val name = parser.label
-                    if (name != null) {
-                        dialog(name)
-                    } else {
-                        dialog("null")
-                    }
-                }
             }
         }
 
         binding.getLabel.setOnClickListener {
             val parser = ManifestParser(assets.open("AndroidManifest.xml"))
-            val name = parser.label
+            val name = parser.getLabel()
             if (name != null) {
                 dialog(name)
             } else {
                 dialog("null")
+            }
+        }
+
+        binding.getAllActivities.setOnClickListener {
+            CoroutineScope(Dispatchers.IO).launch {
+                var result = ""
+                assets.open("AndroidManifest.xml").use {
+                    val parser = ManifestParser(it)
+                    val list = parser.getAllActivityName()
+                    for (i in list.indices) {
+                        result += "\n${list[i]}"
+                    }
+                }
+                withContext(Dispatchers.Main) {
+                    dialog(result)
+                }
             }
         }
     }
