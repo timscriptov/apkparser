@@ -355,8 +355,13 @@ public class AXmlResourceParser implements XmlPullParser {
             int valueString = m_attributes[offset + ATTRIBUTE_IX_VALUE_STRING];
             return m_strings.getString(valueString);
         }
-        //int valueData=m_attributes[offset+ATTRIBUTE_IX_VALUE_DATA];
-        return "";//TypedValue.coerceToString(valueType,valueData);
+        int valueData = m_attributes[offset + ATTRIBUTE_IX_VALUE_DATA];
+        final String valueString = TypedValue.coerceToString(valueType, valueData);
+        if (valueString != null) {
+            return String.format("@%08x", Integer.parseInt(valueString.replace("@", "")));
+        } else {
+            return "";
+        }
     }
 
     public boolean getAttributeBooleanValue(int index, boolean defaultValue) {

@@ -204,4 +204,76 @@ public class TypedValue {
      * the top bit is the sign.
      */
     public static final int COMPLEX_MANTISSA_MASK = 0xffffff;
+
+    private static final String[] DIMENSION_UNIT_STRS = new String[] {
+            "px", "dip", "sp", "pt", "in", "mm"
+    };
+    private static final String[] FRACTION_UNIT_STRS = new String[] {
+            "%", "%p"
+    };
+
+    /**
+     * Perform type conversion as per coerceToString() on an
+     * explicitly supplied type and data.
+     *
+     * @param type The data type identifier.
+     * @param data The data value.
+     *
+     * @return String The coerced string value.  If the value is
+     *         null or the type is not known, null is returned.
+     */
+    public static String coerceToString(int type, int data)
+    {
+        switch (type) {
+            case TYPE_NULL:
+                return null;
+            case TYPE_REFERENCE:
+                return "@" + data;
+            case TYPE_ATTRIBUTE:
+                return "?" + data;
+            case TYPE_FLOAT:
+                return Float.toString(Float.intBitsToFloat(data));
+            case TYPE_DIMENSION:
+                return Float.toString(complexToFloat(data)) + DIMENSION_UNIT_STRS[
+                        (data>>COMPLEX_UNIT_SHIFT)&COMPLEX_UNIT_MASK];
+            case TYPE_FRACTION:
+                return Float.toString(complexToFloat(data)*100) + FRACTION_UNIT_STRS[
+                        (data>>COMPLEX_UNIT_SHIFT)&COMPLEX_UNIT_MASK];
+            case TYPE_INT_HEX:
+                return "0x" + Integer.toHexString(data);
+            case TYPE_INT_BOOLEAN:
+                return data != 0 ? "true" : "false";
+        }
+        if (type >= TYPE_FIRST_COLOR_INT && type <= TYPE_LAST_COLOR_INT) {
+            return "#" + Integer.toHexString(data);
+        } else if (type >= TYPE_FIRST_INT && type <= TYPE_LAST_INT) {
+            return Integer.toString(data);
+        }
+        return null;
+    }
+
+    private static final float MANTISSA_MULT =
+            1.0f / (1<<TypedValue.COMPLEX_MANTISSA_SHIFT);
+    private static final float[] RADIX_MULTS = new float[] {
+            1.0f*MANTISSA_MULT, 1.0f/(1<<7)*MANTISSA_MULT,
+            1.0f/(1<<15)*MANTISSA_MULT, 1.0f/(1<<23)*MANTISSA_MULT
+    };
+
+    /**
+     * Retrieve the base value from a complex data integer.  This uses the
+     * {@link #COMPLEX_MANTISSA_MASK} and {@link #COMPLEX_RADIX_MASK} fields of
+     * the data to compute a floating point representation of the number they
+     * describe.  The units are ignored.
+     *
+     * @param complex A complex data value.
+     *
+     * @return A floating point value corresponding to the complex data.
+     */
+    public static float complexToFloat(int complex)
+    {
+        return (complex&(TypedValue.COMPLEX_MANTISSA_MASK
+                <<TypedValue.COMPLEX_MANTISSA_SHIFT))
+                * RADIX_MULTS[(complex>>TypedValue.COMPLEX_RADIX_SHIFT)
+                & TypedValue.COMPLEX_RADIX_MASK];
+    }
 }
