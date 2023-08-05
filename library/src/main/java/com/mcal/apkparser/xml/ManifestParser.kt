@@ -8,9 +8,9 @@ import java.io.IOException
 import java.io.InputStream
 
 class ManifestParser {
-    private var aXml: AXmlDecoder? = null
-    private var parser = AXmlResourceParser()
-    private var byteArray = byteArrayOf()
+    private var decoder: AXmlDecoder? = null
+    private var parser: AXmlResourceParser? = null
+    private var byteArray: ByteArray? = null
 
     constructor(path: String) : this(File(path).readBytes())
     constructor(file: File) : this(file.readBytes())
@@ -21,13 +21,18 @@ class ManifestParser {
 
 
     private fun reload(byteArray: ByteArray) {
-        this.byteArray = byteArray
-        aXml = AXmlDecoder.decode(byteArray.inputStream()).also {
-            parser.open(ByteArrayInputStream(it.data), it.mTableStrings)
+        this.byteArray = byteArray.also { bytes ->
+            bytes.inputStream().use { inputStream ->
+                decoder = AXmlDecoder.decode(inputStream).also {
+                    parser = AXmlResourceParser().apply {
+                        open(ByteArrayInputStream(it.data), it.mTableStrings)
+                    }
+                }
+            }
         }
     }
 
-    fun get(): ByteArray {
+    fun get(): ByteArray? {
         return byteArray
     }
 
@@ -181,85 +186,94 @@ class ManifestParser {
 
     private fun patching(attributeValue: String, name: String, attributeName: String) {
         try {
-            var success = false
-            var type: Int
-            val decoder = aXml
+            val decoder = decoder
             if (decoder != null) {
-                while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
-                    if (type != XmlPullParser.START_TAG) continue
-                    if (parser.name == name) {
-                        var isFoundAttribute = false
-                        val size = parser.attributeCount
-                        for (i in 0 until size) {
-                            if (parser.getAttributeName(i) == attributeName) {
-                                isFoundAttribute = true
-                                val index = decoder.mTableStrings.size
-                                val data = decoder.data
-                                var off = parser.currentAttributeStart + 20 * i
-                                off += 8
-                                FileHelper.writeInt(data, off, index)
-                                off += 8
-                                FileHelper.writeInt(data, off, index)
-                            }
-                        }
-                        if (!isFoundAttribute) {
-                            var off = parser.currentAttributeStart
-                            val data = decoder.data
-                            val newData = ByteArray(data.size + 20)
-                            System.arraycopy(data, 0, newData, 0, off)
-                            System.arraycopy(data, off, newData, off + 20, data.size - off)
-
-                            // chunkSize
-                            val chunkSize = FileHelper.readInt(newData, off - 32)
-                            FileHelper.writeInt(newData, off - 32, chunkSize + 20)
-
-                            // attributeCount
-                            FileHelper.writeInt(newData, off - 8, size + 1)
-                            val idIndex = parser.findResourceID(NAME)
-                            if (idIndex == -1) {
-                                throw IOException("idIndex == -1")
-                            }
-                            var isMax = true
+                val parser = parser
+                if (parser != null) {
+                    var success = false
+                    var type: Int
+                    while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                        if (type != XmlPullParser.START_TAG) continue
+                        if (parser.name == name) {
+                            var isFoundAttribute = false
+                            val size = parser.attributeCount
                             for (i in 0 until size) {
-                                val id = parser.getAttributeNameResource(i)
-                                if (id > NAME) {
-                                    isMax = false
-                                    if (i != 0) {
-                                        System.arraycopy(newData, off + 20, newData, off, 20 * i)
-                                        off += 20 * i
-                                    }
-                                    break
+                                if (parser.getAttributeName(i) == attributeName) {
+                                    isFoundAttribute = true
+                                    val index = decoder.mTableStrings.size
+                                    val data = decoder.data
+                                    var off = parser.currentAttributeStart + 20 * i
+                                    off += 8
+                                    FileHelper.writeInt(data, off, index)
+                                    off += 8
+                                    FileHelper.writeInt(data, off, index)
                                 }
                             }
-                            if (isMax) {
-                                System.arraycopy(newData, off + 20, newData, off, 20 * size)
-                                off += 20 * size
+                            if (!isFoundAttribute) {
+                                var off = parser.currentAttributeStart
+                                val data = decoder.data
+                                val newData = ByteArray(data.size + 20)
+                                System.arraycopy(data, 0, newData, 0, off)
+                                System.arraycopy(data, off, newData, off + 20, data.size - off)
+
+                                // chunkSize
+                                val chunkSize = FileHelper.readInt(newData, off - 32)
+                                FileHelper.writeInt(newData, off - 32, chunkSize + 20)
+
+                                // attributeCount
+                                FileHelper.writeInt(newData, off - 8, size + 1)
+                                val idIndex = parser.findResourceID(NAME)
+                                if (idIndex == -1) {
+                                    throw IOException("idIndex == -1")
+                                }
+                                var isMax = true
+                                for (i in 0 until size) {
+                                    val id = parser.getAttributeNameResource(i)
+                                    if (id > NAME) {
+                                        isMax = false
+                                        if (i != 0) {
+                                            System.arraycopy(
+                                                newData,
+                                                off + 20,
+                                                newData,
+                                                off,
+                                                20 * i
+                                            )
+                                            off += 20 * i
+                                        }
+                                        break
+                                    }
+                                }
+                                if (isMax) {
+                                    System.arraycopy(newData, off + 20, newData, off, 20 * size)
+                                    off += 20 * size
+                                }
+                                FileHelper.writeInt(
+                                    newData,
+                                    off,
+                                    decoder.mTableStrings.find(SCHEMAS)
+                                )
+                                FileHelper.writeInt(newData, off + 4, idIndex)
+                                FileHelper.writeInt(newData, off + 8, decoder.mTableStrings.size)
+                                FileHelper.writeInt(newData, off + 12, TYPE_STRING)
+                                FileHelper.writeInt(newData, off + 16, decoder.mTableStrings.size)
+                                decoder.data = newData
                             }
-                            FileHelper.writeInt(
-                                newData,
-                                off,
-                                decoder.mTableStrings.find(SCHEMAS)
-                            )
-                            FileHelper.writeInt(newData, off + 4, idIndex)
-                            FileHelper.writeInt(newData, off + 8, decoder.mTableStrings.size)
-                            FileHelper.writeInt(newData, off + 12, TYPE_STRING)
-                            FileHelper.writeInt(newData, off + 16, decoder.mTableStrings.size)
-                            decoder.data = newData
+                            success = true
+                            break
                         }
-                        success = true
-                        break
+                    }
+                    if (!success) {
+                        throw IOException()
+                    }
+                    val list = ArrayList<String>(decoder.mTableStrings.size)
+                    decoder.mTableStrings.getStrings(list)
+                    list.add(attributeValue)
+                    ByteArrayOutputStream().use {
+                        decoder.write(list, it)
+                        reload(it.toByteArray())
                     }
                 }
-                if (!success) {
-                    throw IOException()
-                }
-                val list = ArrayList<String>(decoder.mTableStrings.size)
-                decoder.mTableStrings.getStrings(list)
-                list.add(attributeValue)
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                decoder.write(list, byteArrayOutputStream)
-
-                reload(byteArrayOutputStream.toByteArray())
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -272,86 +286,96 @@ class ManifestParser {
         attributeNameResource: Int
     ) {
         try {
-            var success = false
-            var type: Int
-            val decoder = aXml
+            val decoder = decoder
             if (decoder != null) {
-                while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
-                    if (type != XmlPullParser.START_TAG) {
-                        continue
-                    }
-                    if (parser.name == name) {
-                        var isFoundAttribute = false
-                        val size = parser.attributeCount
-                        for (i in 0 until size) {
-                            if (parser.getAttributeNameResource(i) == attributeNameResource) {
-                                isFoundAttribute = true
-                                val index = decoder.mTableStrings.size
-                                val data = decoder.data
-                                var off = parser.currentAttributeStart + 20 * i
-                                off += 8
-                                FileHelper.writeInt(data, off, index)
-                                off += 8
-                                FileHelper.writeInt(data, off, index)
-                            }
+                val parser = parser
+                if (parser != null) {
+                    var success = false
+                    var type: Int
+                    while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                        if (type != XmlPullParser.START_TAG) {
+                            continue
                         }
-                        if (!isFoundAttribute) {
-                            var off = parser.currentAttributeStart
-                            val data = decoder.data
-                            val newData = ByteArray(data.size + 20)
-                            System.arraycopy(data, 0, newData, 0, off)
-                            System.arraycopy(data, off, newData, off + 20, data.size - off)
-
-                            // chunkSize
-                            val chunkSize = FileHelper.readInt(newData, off - 32)
-                            FileHelper.writeInt(newData, off - 32, chunkSize + 20)
-
-                            // attributeCount
-                            FileHelper.writeInt(newData, off - 8, size + 1)
-                            val idIndex = parser.findResourceID(NAME)
-                            if (idIndex == -1) {
-                                throw IOException("idIndex == -1")
-                            }
-                            var isMax = true
+                        if (parser.name == name) {
+                            var isFoundAttribute = false
+                            val size = parser.attributeCount
                             for (i in 0 until size) {
-                                val id = parser.getAttributeNameResource(i)
-                                if (id > NAME) {
-                                    isMax = false
-                                    if (i != 0) {
-                                        System.arraycopy(newData, off + 20, newData, off, 20 * i)
-                                        off += 20 * i
-                                    }
-                                    break
+                                if (parser.getAttributeNameResource(i) == attributeNameResource) {
+                                    isFoundAttribute = true
+                                    val index = decoder.mTableStrings.size
+                                    val data = decoder.data
+                                    var off = parser.currentAttributeStart + 20 * i
+                                    off += 8
+                                    FileHelper.writeInt(data, off, index)
+                                    off += 8
+                                    FileHelper.writeInt(data, off, index)
                                 }
                             }
-                            if (isMax) {
-                                System.arraycopy(newData, off + 20, newData, off, 20 * size)
-                                off += 20 * size
+                            if (!isFoundAttribute) {
+                                var off = parser.currentAttributeStart
+                                val data = decoder.data
+                                val newData = ByteArray(data.size + 20)
+                                System.arraycopy(data, 0, newData, 0, off)
+                                System.arraycopy(data, off, newData, off + 20, data.size - off)
+
+                                // chunkSize
+                                val chunkSize = FileHelper.readInt(newData, off - 32)
+                                FileHelper.writeInt(newData, off - 32, chunkSize + 20)
+
+                                // attributeCount
+                                FileHelper.writeInt(newData, off - 8, size + 1)
+                                val idIndex = parser.findResourceID(NAME)
+                                if (idIndex == -1) {
+                                    throw IOException("idIndex == -1")
+                                }
+                                var isMax = true
+                                for (i in 0 until size) {
+                                    val id = parser.getAttributeNameResource(i)
+                                    if (id > NAME) {
+                                        isMax = false
+                                        if (i != 0) {
+                                            System.arraycopy(
+                                                newData,
+                                                off + 20,
+                                                newData,
+                                                off,
+                                                20 * i
+                                            )
+                                            off += 20 * i
+                                        }
+                                        break
+                                    }
+                                }
+                                if (isMax) {
+                                    System.arraycopy(newData, off + 20, newData, off, 20 * size)
+                                    off += 20 * size
+                                }
+                                FileHelper.writeInt(
+                                    newData,
+                                    off,
+                                    decoder.mTableStrings.find(SCHEMAS)
+                                )
+                                FileHelper.writeInt(newData, off + 4, idIndex)
+                                FileHelper.writeInt(newData, off + 8, decoder.mTableStrings.size)
+                                FileHelper.writeInt(newData, off + 12, TYPE_STRING)
+                                FileHelper.writeInt(newData, off + 16, decoder.mTableStrings.size)
+                                decoder.data = newData
                             }
-                            FileHelper.writeInt(
-                                newData,
-                                off,
-                                decoder.mTableStrings.find(SCHEMAS)
-                            )
-                            FileHelper.writeInt(newData, off + 4, idIndex)
-                            FileHelper.writeInt(newData, off + 8, decoder.mTableStrings.size)
-                            FileHelper.writeInt(newData, off + 12, TYPE_STRING)
-                            FileHelper.writeInt(newData, off + 16, decoder.mTableStrings.size)
-                            decoder.data = newData
+                            success = true
+                            break
                         }
-                        success = true
-                        break
+                    }
+                    if (!success) {
+                        throw IOException()
+                    }
+                    val list = ArrayList<String>(decoder.mTableStrings.size)
+                    decoder.mTableStrings.getStrings(list)
+                    list.add(attributeValue)
+                    ByteArrayOutputStream().use {
+                        decoder.write(list, it)
+                        reload(it.toByteArray())
                     }
                 }
-                if (!success) {
-                    throw IOException()
-                }
-                val list = ArrayList<String>(decoder.mTableStrings.size)
-                decoder.mTableStrings.getStrings(list)
-                list.add(attributeValue)
-                val byteArrayOutputStream = ByteArrayOutputStream()
-                decoder.write(list, byteArrayOutputStream)
-                reload(byteArrayOutputStream.toByteArray())
             }
         } catch (e: IOException) {
             e.printStackTrace()
@@ -360,15 +384,18 @@ class ManifestParser {
 
     private fun findAttributeStringValue(name: String, attributeName: String): String? {
         try {
-            var type: Int
-            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
-                if (type != XmlPullParser.START_TAG) {
-                    continue
-                }
-                if (parser.name == name) {
-                    for (i in 0 until parser.attributeCount) {
-                        if (parser.getAttributeName(i) == attributeName) {
-                            return parser.getAttributeValue(i)
+            val parser = parser
+            if (parser != null) {
+                var type: Int
+                while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                    if (type != XmlPullParser.START_TAG) {
+                        continue
+                    }
+                    if (parser.name == name) {
+                        for (i in 0 until parser.attributeCount) {
+                            if (parser.getAttributeName(i) == attributeName) {
+                                return parser.getAttributeValue(i)
+                            }
                         }
                     }
                 }
@@ -382,15 +409,18 @@ class ManifestParser {
     private fun findAttributeListValue(name: String, attributeNameResource: Int): List<String> {
         val list = arrayListOf<String>()
         try {
-            var type: Int
-            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
-                if (type != XmlPullParser.START_TAG) {
-                    continue
-                }
-                if (parser.name == name) {
-                    for (i in 0 until parser.attributeCount) {
-                        if (parser.getAttributeNameResource(i) == attributeNameResource) {
-                            list.add(parser.getAttributeValue(i))
+            val parser = parser
+            if (parser != null) {
+                var type: Int
+                while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                    if (type != XmlPullParser.START_TAG) {
+                        continue
+                    }
+                    if (parser.name == name) {
+                        for (i in 0 until parser.attributeCount) {
+                            if (parser.getAttributeNameResource(i) == attributeNameResource) {
+                                list.add(parser.getAttributeValue(i))
+                            }
                         }
                     }
                 }
@@ -403,15 +433,18 @@ class ManifestParser {
 
     private fun findAttributeBooleanValue(name: String, attributeNameResource: Int): Boolean {
         try {
-            var type: Int
-            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
-                if (type != XmlPullParser.START_TAG) {
-                    continue
-                }
-                if (parser.name == name) {
-                    for (i in 0 until parser.attributeCount) {
-                        if (parser.getAttributeNameResource(i) == attributeNameResource) {
-                            return parser.getAttributeBooleanValue(i, false)
+            val parser = parser
+            if (parser != null) {
+                var type: Int
+                while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                    if (type != XmlPullParser.START_TAG) {
+                        continue
+                    }
+                    if (parser.name == name) {
+                        for (i in 0 until parser.attributeCount) {
+                            if (parser.getAttributeNameResource(i) == attributeNameResource) {
+                                return parser.getAttributeBooleanValue(i, false)
+                            }
                         }
                     }
                 }
@@ -424,15 +457,18 @@ class ManifestParser {
 
     private fun findAttributeStringValue(name: String, attributeNameResource: Int): String? {
         try {
-            var type: Int
-            while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
-                if (type != XmlPullParser.START_TAG) {
-                    continue
-                }
-                if (parser.name == name) {
-                    for (i in 0 until parser.attributeCount) {
-                        if (parser.getAttributeNameResource(i) == attributeNameResource) {
-                            return parser.getAttributeValue(i)
+            val parser = parser
+            if (parser != null) {
+                var type: Int
+                while (parser.next().also { type = it } != XmlPullParser.END_DOCUMENT) {
+                    if (type != XmlPullParser.START_TAG) {
+                        continue
+                    }
+                    if (parser.name == name) {
+                        for (i in 0 until parser.attributeCount) {
+                            if (parser.getAttributeNameResource(i) == attributeNameResource) {
+                                return parser.getAttributeValue(i)
+                            }
                         }
                     }
                 }

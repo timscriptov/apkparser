@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace 'com.mcal.apkparser.app'
+    namespace 'com.mcal.template'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.mcal.apkparser.app"
+        applicationId "com.mcal.template"
         minSdk 21
         targetSdk 33
         versionCode 1
@@ -22,6 +22,12 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+    }
+    buildFeatures {
+        viewBinding true
+    }
+    kotlinOptions {
+        jvmTarget = 17
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
