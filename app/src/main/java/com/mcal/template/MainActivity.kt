@@ -101,6 +101,34 @@ class MainActivity : AppCompatActivity() {
                 dialog("null")
             }
         }
+
+        binding.setLabel.setOnClickListener {
+            val parser = ManifestParser(manifestBytes)
+            CoroutineScope(Dispatchers.IO).launch {
+                parser.label = valueBinding.text.toString()
+                parser.get()?.let {
+                    manifestBytes = it
+                }
+                withContext(Dispatchers.Main) {
+                    val name = parser.label
+                    if (name != null) {
+                        dialog(name)
+                    } else {
+                        dialog("null")
+                    }
+                }
+            }
+        }
+
+        binding.getLabel.setOnClickListener {
+            val parser = ManifestParser(assets.open("AndroidManifest.xml"))
+            val name = parser.label
+            if (name != null) {
+                dialog(name)
+            } else {
+                dialog("null")
+            }
+        }
     }
 
     private fun dialog(message: String) {

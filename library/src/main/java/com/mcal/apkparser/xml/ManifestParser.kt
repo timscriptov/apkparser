@@ -45,6 +45,33 @@ class ManifestParser {
             field = attributeValue
         }
 
+    var label: String? = null
+        get() = findAttributeStringValue("application", LABEL)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "application", LABEL)
+            }
+            field = attributeValue
+        }
+
+    var icon: String? = null
+        get() = findAttributeStringValue("application", ICON)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "application", ICON)
+            }
+            field = attributeValue
+        }
+
+    var theme: String? = null
+        get() = findAttributeStringValue("application", THEME)
+        set(attributeValue) {
+            if (attributeValue != null) {
+                patching(attributeValue, "application", THEME)
+            }
+            field = attributeValue
+        }
+
     var applicationName: String? = null
         get() = findAttributeStringValue("application", NAME)
         set(attributeValue) {
@@ -484,10 +511,15 @@ class ManifestParser {
          * https://android.googlesource.com/platform/frameworks/base/+/refs/heads/master/core/res/res/values/public-final.xml
          */
         private const val EXTRACT_NATIVE_LIBS = 0x010104ea
-        private const val NAME = 0x01010003
+
         private const val APP_COMPONENT_FACTORY = 0x0101057a
         private const val VERSION_CODE = 0x0101021b
         private const val VERSION_NAME = 0x0101021c
+
+        private const val THEME = 0x01010000
+        private const val LABEL = 0x01010001
+        private const val ICON = 0x01010002
+        private const val NAME = 0x01010003
 
         private const val COMPILE_SDK_VERSION = 0x01010572
         private const val COMPILE_SDK_VERSION_CODENAME = 0x01010573
