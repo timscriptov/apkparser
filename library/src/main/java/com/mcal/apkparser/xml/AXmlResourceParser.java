@@ -357,8 +357,8 @@ public class AXmlResourceParser implements XmlPullParser {
         }
         int valueData = m_attributes[offset + ATTRIBUTE_IX_VALUE_DATA];
         final String valueString = TypedValue.coerceToString(valueType, valueData);
-        if (valueString != null) {
-            return String.format("@%08x", Integer.parseInt(valueString.replace("@", "")));
+        if (valueString != null && valueString.length() > 1) {
+            return String.format("@%08x", Integer.parseInt(valueString.substring(1)));
         } else {
             return "";
         }
