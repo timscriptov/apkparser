@@ -20,7 +20,7 @@
 ## Read AndroidManifest.xml
 ```kotlin
     val parser = ManifestParser(File("path"))
-    val name = parser.applicationName
+    val name = parser.getApplicationName()
 ```
 
 ```java
@@ -31,7 +31,7 @@
 ## Update AndroidManifest.xml
 ```kotlin
     val parser = ManifestParser(File("path"))
-    parser.applicationName = "com.mypackage.MyApp"
+    parser.setApplicationName("com.mypackage.MyApp")
 ```
 
 ```java
