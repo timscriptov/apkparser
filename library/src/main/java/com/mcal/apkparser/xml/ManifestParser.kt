@@ -36,8 +36,8 @@ class ManifestParser {
         return byteArray
     }
 
-    fun getPackageName() = findAttributeStringValue("application", "package")
-    fun setPackageName(attributeValue: String) = patching(attributeValue, "application", "package")
+    fun getPackageName() = findAttributeStringValue("manifest", "package")
+    fun setPackageName(attributeValue: String) = patching(attributeValue, "manifest", "package")
 
     fun getLabel() = findAttributeStringValue("application", LABEL)
 //    fun setLabel(attributeValue: String) = patching(attributeValue, "application", LABEL)
