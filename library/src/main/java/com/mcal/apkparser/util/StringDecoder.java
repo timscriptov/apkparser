@@ -2,6 +2,9 @@ package com.mcal.apkparser.util;
 
 import com.mcal.apkparser.io.ZInput;
 import com.mcal.apkparser.io.ZOutput;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +30,7 @@ public class StringDecoder {
     private int chunkSize;
     private int m_strings_size;
 
-    public static StringDecoder read(ZInput mIn) throws IOException {
+    public static @NotNull StringDecoder read(@NotNull ZInput mIn) throws IOException {
         mIn.skipCheckChunkTypeInt(CHUNK_STRINGPOOL_TYPE, CHUNK_NULL_TYPE);
         StringDecoder block = new StringDecoder();
         int chunkSize = block.chunkSize = mIn.readInt();
@@ -84,7 +87,8 @@ public class StringDecoder {
         return block;
     }
 
-    private static int[] getVarint(byte[] array, int offset) {
+    @Contract(value = "_, _ -> new", pure = true)
+    private static int @NotNull [] getVarint(byte @NotNull [] array, int offset) {
         if ((array[offset] & 0x80) == 0) {
             return new int[]{array[offset] & 0x7f, 1};
         } else {
@@ -100,7 +104,8 @@ public class StringDecoder {
         // return new int[] { val << 8 | array[offset + 1] & 0xFF, 2 };
     }
 
-    protected static byte[] getVarBytes(int val) {
+    @Contract(pure = true)
+    protected static byte @NotNull [] getVarBytes(int val) {
         if ((val & 0x7f) == val) { // 111 1111
             return new byte[]{(byte) val};
         } else {
@@ -111,7 +116,7 @@ public class StringDecoder {
         }
     }
 
-    private static String decodeString(int offset, int length, boolean utf8, byte[] data) {
+    private static @Nullable String decodeString(int offset, int length, boolean utf8, byte[] data) {
         try {
             return (utf8 ? UTF8_DECODER : UTF16LE_DECODER).decode(
                     ByteBuffer.wrap(data, offset, length)).toString();
@@ -121,7 +126,8 @@ public class StringDecoder {
         return null;
     }
 
-    private static int getShort(byte[] array, int offset) {
+    @Contract(pure = true)
+    private static int getShort(byte @NotNull [] array, int offset) {
         return (array[offset + 1] & 0xFF) << 8 | array[offset] & 0xFF;
     }
 
@@ -156,7 +162,7 @@ public class StringDecoder {
         write(m_strings, out);
     }
 
-    public void write(String[] s, ZOutput out) throws IOException {
+    public void write(String @NotNull [] s, ZOutput out) throws IOException {
         ByteArrayOutputStream outBuf = new ByteArrayOutputStream();
         ZOutput led = new ZOutput(outBuf);
         // stringCount

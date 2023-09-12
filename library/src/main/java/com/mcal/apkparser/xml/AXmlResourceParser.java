@@ -18,6 +18,7 @@ package com.mcal.apkparser.xml;
 import com.mcal.apkparser.io.ZInput;
 import com.mcal.apkparser.util.StringDecoder;
 import com.mcal.apkparser.util.TypedValue;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -74,7 +75,7 @@ public class AXmlResourceParser implements XmlPullParser {
         resetEventInfo();
     }
 
-    private static void readCheckType(ZInput reader, int expectedType) throws IOException {
+    private static void readCheckType(@NotNull ZInput reader, int expectedType) throws IOException {
         final int type = reader.readInt();
         if (type != expectedType) {
             throw new IOException(

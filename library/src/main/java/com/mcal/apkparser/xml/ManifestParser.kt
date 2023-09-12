@@ -1,11 +1,7 @@
 package com.mcal.apkparser.xml
 
 import com.mcal.apkparser.util.FileHelper
-import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
-import java.io.File
-import java.io.IOException
-import java.io.InputStream
+import java.io.*
 
 class ManifestParser {
     private var decoder: AXmlDecoder? = null

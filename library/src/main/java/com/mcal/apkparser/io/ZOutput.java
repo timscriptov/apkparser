@@ -1,5 +1,7 @@
 package com.mcal.apkparser.io;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -34,7 +36,7 @@ public final class ZOutput {
         written++;
     }
 
-    public void writeCharArray(char[] c) throws IOException {
+    public void writeCharArray(char @NotNull [] c) throws IOException {
         for (char element : c)
             writeChar(element);
     }
@@ -80,7 +82,7 @@ public final class ZOutput {
         writeIntArray(buf, 0, buf.length);
     }
 
-    public void writeNulEndedString(String string, int length, boolean fixed) throws IOException {
+    public void writeNulEndedString(@NotNull String string, int length, boolean fixed) throws IOException {
         char[] ch = string.toCharArray();
         int j = 0;
         while (j < ch.length && length != 0) {

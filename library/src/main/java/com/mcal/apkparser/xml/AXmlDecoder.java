@@ -3,6 +3,7 @@ package com.mcal.apkparser.xml;
 import com.mcal.apkparser.io.ZInput;
 import com.mcal.apkparser.io.ZOutput;
 import com.mcal.apkparser.util.StringDecoder;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class AXmlDecoder {
         this.mIn = in;
     }
 
-    public static AXmlDecoder decode(InputStream input) throws IOException {
+    public static @NotNull AXmlDecoder decode(InputStream input) throws IOException {
         final AXmlDecoder axml = new AXmlDecoder(new ZInput(input));
         axml.readStrings();
         return axml;
@@ -55,7 +56,7 @@ public class AXmlDecoder {
         write(list, new ZOutput(out));
     }
 
-    public void write(List<String> list, ZOutput out) throws IOException {
+    public void write(@NotNull List<String> list, @NotNull ZOutput out) throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final ZOutput buf = new ZOutput(baos);
         final String[] array = new String[list.size()];
@@ -69,7 +70,7 @@ public class AXmlDecoder {
         buf.close();
     }
 
-    public void write(ZOutput out) throws IOException {
+    public void write(@NotNull ZOutput out) throws IOException {
         final ByteArrayOutputStream baos = new ByteArrayOutputStream();
         final ZOutput buf = new ZOutput(baos);
         mTableStrings.write(buf);

@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="apkparser-jvm">
+    <output-path>$PROJECT_DIR$/build/libs</output-path>
+    <root id="archive" name="apkparser-jvm.jar">
+      <element id="module-output" name="apkparser.jvmMain" />
+    </root>
+  </artifact>
+</component>

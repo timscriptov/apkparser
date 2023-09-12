@@ -1,5 +1,7 @@
 package com.mcal.apkparser.io;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,7 +56,7 @@ public final class ZInput {
         return Double.longBitsToDouble(readLong());
     }
 
-    public int[] readIntArray(int length) throws IOException {
+    public int @NotNull [] readIntArray(int length) throws IOException {
         int[] array = new int[length];
         for (int i = 0; i < length; i++) {
             array[i] = readInt();
@@ -157,7 +159,7 @@ public final class ZInput {
         return dis.skipBytes(n);
     }
 
-    public String readNullEndedString(int length, boolean fixed) throws IOException {
+    public @NotNull String readNullEndedString(int length, boolean fixed) throws IOException {
         StringBuilder string = new StringBuilder(16);
         while (length-- != 0) {
             short ch = readShort();

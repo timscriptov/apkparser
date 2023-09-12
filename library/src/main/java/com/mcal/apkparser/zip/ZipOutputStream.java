@@ -18,29 +18,19 @@
 
 package com.mcal.apkparser.zip;
 
-import static com.mcal.apkparser.zip.ZipLong.putLong;
-
 import com.mcal.apkparser.zip.encoding.ZipEncoding;
 import com.mcal.apkparser.zip.encoding.ZipEncodingHelper;
 import com.mcal.apkparser.zip.extrafield.UnicodeCommentExtraField;
 import com.mcal.apkparser.zip.extrafield.UnicodePathExtraField;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.FilterOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.nio.ByteBuffer;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.zip.CRC32;
 import java.util.zip.Deflater;
 import java.util.zip.ZipException;
+
+import static com.mcal.apkparser.zip.ZipLong.putLong;
 
 /**
  * Reimplementation of {@link java.util.zip.ZipOutputStream
