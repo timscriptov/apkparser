@@ -22,6 +22,7 @@ import com.mcal.apkparser.zip.encoding.ZipEncoding;
 import com.mcal.apkparser.zip.encoding.ZipEncodingHelper;
 import com.mcal.apkparser.zip.extrafield.UnicodeCommentExtraField;
 import com.mcal.apkparser.zip.extrafield.UnicodePathExtraField;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.ByteBuffer;
@@ -352,7 +353,7 @@ public class ZipOutputStream extends FilterOutputStream {
             return 0x00002100L;
         }
         int month = time.getMonth() + 1;
-        return ((year - 1980) << 25)
+        return ((long) (year - 1980) << 25)
                 | (month << 21)
                 | (time.getDate() << 16)
                 | (time.getHours() << 11)
@@ -392,7 +393,7 @@ public class ZipOutputStream extends FilterOutputStream {
         return raf != null;
     }
 
-    public void setZipEncoding(final ZipEncoding zipEncoding) {
+    public void setZipEncoding(final @NotNull ZipEncoding zipEncoding) {
         this.zipEncoding = zipEncoding;
         this.encoding = zipEncoding.getEncoding();
         if (useUTF8Flag && !ZipEncodingHelper.isUTF8(encoding)) {
@@ -551,16 +552,27 @@ public class ZipOutputStream extends FilterOutputStream {
         entry = null;
     }
 
-    public void writeFully(InputStream is) throws IOException {
+    public void writeFully(@NotNull InputStream is) throws IOException {
         int len;
         byte[] b = new byte[BUFFER_SIZE];
         while ((len = is.read(b)) > 0)
             write(b, 0, len);
     }
 
-    public void copyZipEntry(ZipEntry zipEntry, ZipFile zipFile) throws IOException {
+    public void copyZipEntry(ZipEntry zipEntry, @NotNull ZipFile zipFile) throws IOException {
         InputStream rawInputStream = zipFile.getRawInputStream(zipEntry);
         putNextRawEntry(zipEntry);
+        int len;
+        byte[] b = new byte[BUFFER_SIZE];
+        while ((len = rawInputStream.read(b)) > 0) {
+            writeRaw(b, 0, len);
+        }
+        closeEntry();
+    }
+
+    public void copyZipEntryCRC(ZipEntry zipEntry, @NotNull ZipFile zipFile, long crcValue) throws IOException {
+        InputStream rawInputStream = zipFile.getRawInputStream(zipEntry);
+        putNextRawEntryCRC(zipEntry, crcValue);
         int len;
         byte[] b = new byte[BUFFER_SIZE];
         while ((len = rawInputStream.read(b)) > 0) {
@@ -644,6 +656,36 @@ public class ZipOutputStream extends FilterOutputStream {
             def.setLevel(level);
             hasCompressionLevelChanged = false;
         }
+        writeLocalFileHeader(entry);
+    }
+
+    public void putNextRawEntryCRC(ZipEntry ze, long crcValue) throws IOException {
+        closeEntry();
+
+        entry = ze;
+        entries.add(entry);
+
+        currentIsRawEntry = true;
+
+        // Size/CRC not required if RandomAccessFile is used
+        if (entry.getMethod() == STORED && raf == null) {
+            if (entry.getSize() == -1) {
+                throw new ZipException("uncompressed size is required for"
+                        + " STORED method when not writing to a"
+                        + " file");
+            }
+            if (entry.getCrc() == -1) {
+                throw new ZipException("crc checksum is required for STORED"
+                        + " method when not writing to a file");
+            }
+            entry.setCompressedSize(entry.getSize());
+        }
+
+        if (entry.getMethod() == DEFLATED && hasCompressionLevelChanged) {
+            def.setLevel(level);
+            hasCompressionLevelChanged = false;
+        }
+        entry.setCrc(crcValue);
         writeLocalFileHeader(entry);
     }
 
@@ -805,7 +847,7 @@ public class ZipOutputStream extends FilterOutputStream {
      * @throws IOException on error
      * @since 1.1
      */
-    protected void writeLocalFileHeader(ZipEntry ze) throws IOException {
+    protected void writeLocalFileHeader(@NotNull ZipEntry ze) throws IOException {
 
         boolean encodable = zipEncoding.canEncode(ze.getName());
 
@@ -830,7 +872,7 @@ public class ZipOutputStream extends FilterOutputStream {
             }
 
             String comm = ze.getComment();
-            if (comm != null && !"".equals(comm)) {
+            if (comm != null && !comm.isEmpty()) {
 
                 boolean commentEncodable = this.zipEncoding.canEncode(comm);
 
@@ -929,7 +971,7 @@ public class ZipOutputStream extends FilterOutputStream {
      * @throws IOException on error
      * @since 1.1
      */
-    protected void writeDataDescriptor(ZipEntry ze) throws IOException {
+    protected void writeDataDescriptor(@NotNull ZipEntry ze) throws IOException {
         if (ze.getMethod() != DEFLATED || raf != null) {
             return;
         }
@@ -958,7 +1000,7 @@ public class ZipOutputStream extends FilterOutputStream {
      * @throws IOException on error
      * @since 1.1
      */
-    protected void writeCentralFileHeader(ZipEntry ze) throws IOException {
+    protected void writeCentralFileHeader(@NotNull ZipEntry ze) throws IOException {
         final int zipMethod = ze.getMethod();
         final boolean encodable = zipEncoding.canEncode(ze.getName());
 

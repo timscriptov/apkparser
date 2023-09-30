@@ -19,7 +19,7 @@ publishing {
         register<MavenPublication>("release") {
             groupId = "com.mcal"
             artifactId = "apkparser"
-            version = "1.2.5"
+            version = "1.2.6"
 
             afterEvaluate {
                 from(components["java"])
