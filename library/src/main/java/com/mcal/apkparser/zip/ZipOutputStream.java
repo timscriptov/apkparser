@@ -570,9 +570,20 @@ public class ZipOutputStream extends FilterOutputStream {
         closeEntry();
     }
 
-    public void copyZipEntryCRC(ZipEntry zipEntry, @NotNull ZipFile zipFile, long crcValue) throws IOException {
+    public void copyZipEntry(ZipEntry zipEntry, @NotNull ZipFile zipFile, long entryCrc) throws IOException {
         InputStream rawInputStream = zipFile.getRawInputStream(zipEntry);
-        putNextRawEntryCRC(zipEntry, crcValue);
+        putNextRawEntry(zipEntry, entryCrc);
+        int len;
+        byte[] b = new byte[BUFFER_SIZE];
+        while ((len = rawInputStream.read(b)) > 0) {
+            writeRaw(b, 0, len);
+        }
+        closeEntry();
+    }
+
+    public void copyZipEntry(ZipEntry zipEntry, @NotNull ZipFile zipFile, long entryCrc, long entryTime) throws IOException {
+        InputStream rawInputStream = zipFile.getRawInputStream(zipEntry);
+        putNextRawEntry(zipEntry, entryCrc, entryTime);
         int len;
         byte[] b = new byte[BUFFER_SIZE];
         while ((len = rawInputStream.read(b)) > 0) {
@@ -659,7 +670,7 @@ public class ZipOutputStream extends FilterOutputStream {
         writeLocalFileHeader(entry);
     }
 
-    public void putNextRawEntryCRC(ZipEntry ze, long crcValue) throws IOException {
+    public void putNextRawEntry(ZipEntry ze, long entryCrc) throws IOException {
         closeEntry();
 
         entry = ze;
@@ -685,7 +696,38 @@ public class ZipOutputStream extends FilterOutputStream {
             def.setLevel(level);
             hasCompressionLevelChanged = false;
         }
-        entry.setCrc(crcValue);
+        entry.setCrc(entryCrc);
+        writeLocalFileHeader(entry);
+    }
+
+    public void putNextRawEntry(ZipEntry ze, long entryCrc, long entryTime) throws IOException {
+        closeEntry();
+
+        entry = ze;
+        entries.add(entry);
+
+        currentIsRawEntry = true;
+
+        // Size/CRC not required if RandomAccessFile is used
+        if (entry.getMethod() == STORED && raf == null) {
+            if (entry.getSize() == -1) {
+                throw new ZipException("uncompressed size is required for"
+                        + " STORED method when not writing to a"
+                        + " file");
+            }
+            if (entry.getCrc() == -1) {
+                throw new ZipException("crc checksum is required for STORED"
+                        + " method when not writing to a file");
+            }
+            entry.setCompressedSize(entry.getSize());
+        }
+
+        if (entry.getMethod() == DEFLATED && hasCompressionLevelChanged) {
+            def.setLevel(level);
+            hasCompressionLevelChanged = false;
+        }
+        entry.setCrc(entryCrc);
+        entry.setTime(entryTime);
         writeLocalFileHeader(entry);
     }
 
